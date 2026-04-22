@@ -1,0 +1,108 @@
+.dd-gap-exercise {
+  --dd-primary: #0856c9;
+  --dd-primary-dark: #063f93;
+  --dd-primary-light: #dce9ff;
+  --dd-accent: #4c89df;
+  --dd-neutral: #f4f7ff;
+  --dd-success: #189a5c;
+  --dd-success-bg: #e7f8ef;
+  --dd-error: #c62828;
+  --dd-error-bg: #fdecec;
+
+  border: 2px solid var(--dd-primary-light);
+  border-radius: 14px;
+  background: #fff;
+  padding: 1.25rem;
+  margin: 1.2rem 0;
+}
+
+.dd-gap-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--dd-accent);
+  border-radius: 10px;
+  background: var(--dd-neutral);
+  min-height: 56px;
+}
+
+.dd-gap-token {
+  border: 1px solid var(--dd-primary);
+  background: #fff;
+  color: var(--dd-primary-dark);
+  border-radius: 999px;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  cursor: grab;
+}
+
+.dd-gap-token:active {
+  cursor: grabbing;
+}
+
+.dd-gap-text {
+  line-height: 1.8;
+}
+
+.dd-gap-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 110px;
+  min-height: 38px;
+  padding: 0.2rem;
+  margin: 0 0.2rem;
+  border-bottom: 3px solid var(--dd-primary);
+  background: var(--dd-primary-light);
+  border-radius: 6px 6px 0 0;
+  vertical-align: middle;
+}
+
+.dd-gap-slot.has-token {
+  background: #fff;
+}
+
+.dd-gap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.dd-gap-check.button {
+  background: var(--dd-primary);
+  border-color: var(--dd-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.dd-gap-check.button:hover {
+  background: var(--dd-primary-dark);
+  border-color: var(--dd-primary-dark);
+}
+
+.dd-gap-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--dd-primary-dark);
+  background: var(--dd-primary-light);
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+}
+
+.dd-gap-slot.is-correct,
+.dd-gap-token.is-correct {
+  border-color: var(--dd-success);
+  background: var(--dd-success-bg);
+  color: var(--dd-success);
+}
+
+.dd-gap-slot.is-wrong,
+.dd-gap-token.is-wrong {
+  border-color: var(--dd-error);
+  background: var(--dd-error-bg);
+  color: var(--dd-error);
+}
