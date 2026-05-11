@@ -136,10 +136,17 @@ class DD_Gap_Exercises_Plugin {
 
     public function register_front_assets(): void {
         wp_register_style(
+            'dd-gap-roboto',
+            'https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap',
+            [],
+            null
+        );
+
+        wp_register_style(
             'dd-gap-frontend',
             plugin_dir_url(__FILE__) . 'assets/css/frontend.css',
-            [],
-            '1.0.0'
+            ['dd-gap-roboto'],
+            '1.0.1'
         );
 
         wp_register_script(
@@ -235,6 +242,10 @@ class DD_Gap_Exercises_Plugin {
             id="<?php echo esc_attr($container_id); ?>"
             data-answers="<?php echo esc_attr(wp_json_encode($exercise['answers'])); ?>"
         >
+            <?php if ($post->post_title) : ?>
+                <h2 class="dd-gap-title"><?php echo esc_html($post->post_title); ?></h2>
+            <?php endif; ?>
+
             <div class="dd-gap-bank" aria-label="<?php esc_attr_e('Drag these items', 'dd-gap-exercises'); ?>">
                 <?php foreach ($exercise['bank'] as $bank_item) : ?>
                     <button

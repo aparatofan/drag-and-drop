@@ -16,6 +16,14 @@
   margin: 1.2rem 0;
 }
 
+.dd-gap-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #660000;
+  margin: 0 0 1rem 0;
+}
+
 .dd-gap-bank {
   display: flex;
   flex-wrap: wrap;
@@ -34,8 +42,15 @@
   color: var(--dd-primary-dark);
   border-radius: 999px;
   font-weight: 600;
+  font-size: 1em;
   padding: 0.35rem 0.85rem;
   cursor: grab;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dd-gap-token:hover {
+  background: var(--dd-primary);
+  color: #fff;
 }
 
 .dd-gap-token:active {
@@ -44,6 +59,7 @@
 
 .dd-gap-text {
   line-height: 1.8;
+  font-weight: 300;
 }
 
 .dd-gap-slot {
@@ -58,6 +74,7 @@
   background: var(--dd-primary-light);
   border-radius: 6px 6px 0 0;
   vertical-align: middle;
+  font-size: 1em;
 }
 
 .dd-gap-slot.has-token {
@@ -74,9 +91,16 @@
 
 .dd-gap-check.button {
   background: var(--dd-primary);
-  border-color: var(--dd-primary);
+  border: none;
   color: #fff;
+  font-family: 'Roboto', sans-serif;
   font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .dd-gap-check.button:hover {
