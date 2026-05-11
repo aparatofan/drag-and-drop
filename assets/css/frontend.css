@@ -103,9 +103,24 @@
   cursor: pointer;
 }
 
-.dd-gap-check.button:hover {
+.dd-gap-check.button:hover,
+.dd-gap-reset.button:hover {
   background: var(--dd-primary-dark);
   border-color: var(--dd-primary-dark);
+}
+
+.dd-gap-reset.button {
+  background: var(--dd-primary);
+  border: none;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .dd-gap-score {
@@ -119,14 +134,14 @@
 
 .dd-gap-slot.is-correct,
 .dd-gap-token.is-correct {
-  border-color: var(--dd-success);
+  border-color: transparent;
   background: var(--dd-success-bg);
   color: var(--dd-success);
 }
 
 .dd-gap-slot.is-wrong,
 .dd-gap-token.is-wrong {
-  border-color: var(--dd-error);
+  border-color: transparent;
   background: var(--dd-error-bg);
   color: var(--dd-error);
 }
