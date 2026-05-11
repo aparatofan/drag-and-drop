@@ -1,0 +1,18 @@
+.dd-gap-admin-wrap .dd-gap-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.dd-gap-admin-wrap .dd-gap-item-input {
+  width: 100%;
+  max-width: 360px;
+}
+
+.dd-gap-admin-wrap .dd-gap-shortcode-note code {
+  background: #eef4ff;
+  color: #0856c9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
