@@ -12,6 +12,7 @@
     const bank = exercise.querySelector('.dd-gap-bank');
     const checkBtn = exercise.querySelector('.dd-gap-check');
     const resetBtn = exercise.querySelector('.dd-gap-reset');
+    const showBtn = exercise.querySelector('.dd-gap-show');
     const scoreBox = exercise.querySelector('.dd-gap-score');
     const slots = [...exercise.querySelectorAll('.dd-gap-slot')];
     const answers = JSON.parse(exercise.dataset.answers || '{}');
@@ -50,10 +51,37 @@
       });
     }
 
+    function showCorrect() {
+      clearResults();
+
+      slots.forEach((slot) => {
+        const token = slot.querySelector('.dd-gap-token');
+        if (token) {
+          bank.appendChild(token);
+        }
+        slot.innerHTML = '';
+        slot.classList.remove('has-token');
+      });
+
+      slots.forEach((slot) => {
+        const slotId = slot.dataset.slotId;
+        const expected = answers[slotId];
+        const token = bank.querySelector(`.dd-gap-token[data-token="${CSS.escape(expected)}"]`);
+        if (!token) return;
+
+        placeTokenInSlot(slot, token);
+        slot.classList.add('is-correct');
+        token.classList.add('is-correct');
+      });
+
+      showBtn.hidden = true;
+    }
+
     function resetExercise() {
       clearResults();
       scoreBox.hidden = true;
       resetBtn.hidden = true;
+      showBtn.hidden = true;
       checkBtn.hidden = false;
 
       slots.forEach((slot) => {
@@ -135,9 +163,11 @@
       scoreBox.hidden = false;
       checkBtn.hidden = true;
       resetBtn.hidden = false;
+      showBtn.hidden = false;
     });
 
     resetBtn.addEventListener('click', resetExercise);
+    showBtn.addEventListener('click', showCorrect);
   }
 
   document.querySelectorAll('.dd-gap-exercise').forEach(initExercise);
