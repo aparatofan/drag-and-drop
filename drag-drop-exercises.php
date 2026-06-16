@@ -146,7 +146,7 @@ class DD_Gap_Exercises_Plugin {
             'dd-gap-frontend',
             plugin_dir_url(__FILE__) . 'assets/css/frontend.css',
             ['dd-gap-roboto'],
-            '1.0.1'
+            '1.0.2'
         );
 
         wp_register_script(
