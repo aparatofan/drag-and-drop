@@ -108,6 +108,28 @@
   border-color: var(--dd-primary-dark);
 }
 
+.dd-gap-show.button,
+.dd-gap-reset.button {
+  background: #fff;
+  border: 2px solid var(--dd-primary);
+  color: var(--dd-primary);
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.55rem 1.3rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dd-gap-show.button:hover,
+.dd-gap-reset.button:hover {
+  background: var(--dd-primary);
+  border-color: var(--dd-primary);
+  color: #fff;
+}
+
 .dd-gap-score {
   font-size: 1.1rem;
   font-weight: 800;
