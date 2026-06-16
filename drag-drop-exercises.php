@@ -153,7 +153,7 @@ class DD_Gap_Exercises_Plugin {
             'dd-gap-frontend',
             plugin_dir_url(__FILE__) . 'assets/js/frontend.js',
             [],
-            '1.0.0',
+            '1.0.1',
             true
         );
     }
@@ -266,6 +266,7 @@ class DD_Gap_Exercises_Plugin {
             <div class="dd-gap-actions">
                 <button type="button" class="dd-gap-check button"><?php esc_html_e('CHECK YOUR ANSWERS', 'dd-gap-exercises'); ?></button>
                 <div class="dd-gap-score" hidden></div>
+                <button type="button" class="dd-gap-show button button-secondary" hidden><?php esc_html_e('Show correct', 'dd-gap-exercises'); ?></button>
                 <button type="button" class="dd-gap-reset button button-secondary" hidden><?php esc_html_e('Redo exercise', 'dd-gap-exercises'); ?></button>
             </div>
         </div>
