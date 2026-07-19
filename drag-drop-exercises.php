@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Drag & Drop Gap Exercises
+ * Plugin Name: TBT Drag Exercises
  * Description: Create drag-and-drop gap-fill exercises and embed them with a shortcode.
  * Version: 1.0.0
  * Author: Codex
@@ -36,7 +36,9 @@ class DD_Gap_Exercises_Plugin {
             ],
             'public' => false,
             'show_ui' => true,
-            'show_in_menu' => true,
+            // Nest under the TBT hub menu when it is active; fall back to a
+            // top-level menu of its own when the hub is deactivated.
+            'show_in_menu' => defined('TBT_HUB_SLUG') ? TBT_HUB_SLUG : true,
             'menu_icon' => 'dashicons-editor-ol',
             'supports' => ['title'],
             'has_archive' => false,
@@ -322,3 +324,25 @@ class DD_Gap_Exercises_Plugin {
 }
 
 new DD_Gap_Exercises_Plugin();
+
+/**
+ * Register this plugin on the TBT Hub Overview page.
+ *
+ * Loaded unconditionally. The Overview card links to the custom post type
+ * list (edit.php?post_type=dd_exercise) via the `url` key, since this plugin
+ * has no admin.php?page=… screen of its own.
+ *
+ * @param array $items Existing hub items.
+ * @return array
+ */
+function dd_gap_register_hub_item($items) {
+    $items[] = array(
+        'slug'        => 'tbt-drag-exercises',
+        'title'       => 'TBT Drag Exercises',
+        'description' => 'Drag-and-drop gap-fill exercises embedded with a shortcode.',
+        'capability'  => 'edit_posts',
+        'url'         => admin_url('edit.php?post_type=dd_exercise'),
+    );
+    return $items;
+}
+add_filter('tbt_hub_items', 'dd_gap_register_hub_item');
