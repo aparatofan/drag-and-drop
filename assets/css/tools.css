@@ -1,0 +1,798 @@
+/**
+ * TBT Teaching Tools — front-end drag-and-drop generator and library.
+ *
+ * The design tokens this file consumes are NOT defined here. They come from the
+ * shared 'tbt-tokens' handle, which TBT-Hub owns and this plugin declares as a
+ * dependency, falling back to assets/vendor/tbt/tbt-tokens.css when Hub is
+ * inactive. See that directory's README.txt for why the tokens are a :root
+ * default inside a cascade layer rather than a self-referencing var() fallback.
+ */
+
+/*
+ * tools.css only loads on a page that actually renders a tool shortcode, so
+ * painting the page itself is safe here and gives the tool an edge-to-edge pale
+ * canvas without a 100vw full-bleed trick, which would add a horizontal
+ * scrollbar wherever the browser draws a classic vertical one.
+ */
+body {
+	background: var(--tbt-canvas);
+}
+
+.tbt-tool {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 32px 24px 96px;
+	background: transparent;
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-ui);
+	font-size: 16px;
+	line-height: 1.55;
+}
+
+/* Zero-specificity reset so a Divi theme's typography stops at the tool edge. */
+:where(.tbt-tool), :where(.tbt-tool *), :where(.tbt-tool *::before), :where(.tbt-tool *::after) {
+	box-sizing: border-box;
+}
+
+:where(.tbt-tool p, .tbt-tool h1, .tbt-tool h2, .tbt-tool h3, .tbt-tool ol, .tbt-tool ul, .tbt-tool li) {
+	margin: 0;
+	padding: 0;
+}
+
+:where(.tbt-tool ol, .tbt-tool ul) {
+	list-style: none;
+}
+
+:where(.tbt-tool button) {
+	font: inherit;
+	color: inherit;
+	background: none;
+	border: 0;
+	cursor: pointer;
+}
+
+:where(.tbt-tool input, .tbt-tool select, .tbt-tool textarea) {
+	font: inherit;
+	color: inherit;
+}
+
+/* Divi sets display on many elements, which beats [hidden]'s default. */
+:where(.tbt-tool) [hidden] {
+	display: none !important;
+}
+
+/* ---------- Back link ---------- */
+
+.tbtdd-backlink {
+	margin-bottom: 16px;
+}
+
+.tbtdd-backlink__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--tbt-blue);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.tbtdd-backlink__link:hover {
+	color: var(--tbt-blue-dark);
+	text-decoration: underline;
+}
+
+.tbtdd-backlink__link:focus-visible {
+	border-radius: var(--tbt-radius-control);
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
+}
+
+/* ---------- Tool Hero (Style Book §6B) ---------- */
+
+.tbt-tool-hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 24px;
+	align-items: center;
+	padding: 40px;
+	border-radius: var(--tbt-radius-panel);
+	background: linear-gradient(135deg, var(--tbt-blue), var(--tbt-blue-dark));
+	box-shadow: var(--tbt-shadow-raised);
+	color: #FFFFFF;
+}
+
+.tbt-tool-hero__content {
+	min-width: 0;
+}
+
+.tbt-tool .tbt-tool-hero__logo {
+	display: block;
+	width: clamp(120px, 16vw, 180px);
+	max-height: 96px;
+	height: auto;
+	object-fit: contain;
+}
+
+.tbt-tool .tbt-tool-hero__eyebrow {
+	margin: 0 0 6px;
+	color: #CFE0FB;
+	font-family: var(--tbt-font-ui);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	line-height: 1.3;
+	text-transform: uppercase;
+}
+
+.tbt-tool .tbt-tool-hero__title {
+	margin: 0;
+	color: #FFFFFF;
+	font-family: var(--tbt-font-identity);
+	font-size: 34px;
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+}
+
+.tbt-tool .tbt-tool-hero__support {
+	max-width: 60ch;
+	margin: 10px 0 0;
+	color: #DBE8FC;
+	font-family: var(--tbt-font-ui);
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+/* ---------- Gate ---------- */
+
+.tbtdd-tool--gate {
+	max-width: 640px;
+	padding: 40px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-panel);
+	background: var(--tbt-surface);
+	box-shadow: var(--tbt-shadow);
+}
+
+.tbtdd-tool--gate p + p {
+	margin-top: 24px;
+}
+
+/* ---------- Stage cards (Style Book §4, §5) ---------- */
+
+.tbtdd-stage {
+	margin-top: 48px;
+	padding: 40px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-panel);
+	background: var(--tbt-surface);
+	box-shadow: var(--tbt-shadow);
+}
+
+.tbtdd-stage + .tbtdd-stage {
+	margin-top: 40px;
+}
+
+.tbtdd-stage__head {
+	display: flex;
+	gap: 10px;
+	align-items: baseline;
+	margin-bottom: 8px;
+}
+
+.tbtdd-stage__no {
+	color: var(--tbt-blue);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.tbtdd-stage__name {
+	margin: 0;
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-content);
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.tbtdd-hint {
+	margin: 0 0 24px;
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+}
+
+.tbtdd-hint--field {
+	margin: 8px 0 0;
+}
+
+/* ---------- Fields ---------- */
+
+.tbtdd-field + .tbtdd-field {
+	margin-top: 24px;
+}
+
+.tbtdd-field label {
+	display: block;
+	margin-bottom: 8px;
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.tbtdd-field input[type="text"],
+.tbtdd-field input[type="search"],
+.tbtdd-field textarea,
+.tbtdd-copy__row input {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	padding: 12px 14px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-control);
+	background: var(--tbt-input);
+	color: var(--tbt-ink);
+	/* Style Book §3: the teacher is authoring learning material here, not
+	   filling in a database field, so these carry the content face. */
+	font-family: var(--tbt-font-content);
+	font-size: 17px;
+	line-height: 1.7;
+}
+
+.tbtdd-field input:focus,
+.tbtdd-field textarea:focus,
+.tbtdd-copy__row input:focus {
+	border-color: var(--tbt-blue);
+	background: var(--tbt-surface);
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
+}
+
+.tbtdd-field textarea {
+	min-height: 190px;
+	resize: vertical;
+}
+
+.tbtdd-field--search input {
+	font-family: var(--tbt-font-ui);
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+/* ---------- The gap picker ---------- */
+
+.tbtdd-picker {
+	padding: 24px 28px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-card);
+	background: var(--tbt-input);
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-content);
+	font-size: 17px;
+	/* Loose enough that a gap pill never touches the line above it. */
+	line-height: 2.1;
+	/* Whitespace as written, so the text in the picker matches the text in the
+	   player line for line. */
+	white-space: pre-wrap;
+	cursor: text;
+	user-select: none;
+}
+
+.tbtdd-picker.is-empty {
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 15px;
+	line-height: 1.6;
+	white-space: normal;
+}
+
+.tbtdd-picker__word {
+	padding: 2px 1px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.tbtdd-picker__word:hover {
+	background: var(--tbt-selected-bg);
+	box-shadow: 0 0 0 2px var(--tbt-selected-bg);
+}
+
+.tbtdd-picker__word:focus-visible {
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
+}
+
+/* Painted while a drag is in progress across several words. */
+.tbtdd-picker__word.is-marking {
+	background: #CFE0FB;
+}
+
+.tbtdd-picker__gap {
+	padding: 2px 6px;
+	border-radius: 6px;
+	background: var(--tbt-blue);
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+.tbtdd-picker__gap:hover {
+	background: var(--tbt-blue-dark);
+}
+
+.tbtdd-picker__gap:focus-visible {
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
+}
+
+/* ---------- Chosen gaps ---------- */
+
+.tbtdd-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: center;
+	margin-top: 24px;
+}
+
+.tbtdd-chip {
+	display: inline-flex;
+	gap: 8px;
+	align-items: center;
+	padding: 6px 8px 6px 14px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-pill);
+	background: var(--tbt-selected-bg);
+	color: var(--tbt-blue-dark);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.tbtdd-chip__remove {
+	padding: 2px 4px;
+	border-radius: 50%;
+	color: var(--tbt-muted);
+	font-size: 16px;
+	line-height: 1;
+}
+
+.tbtdd-chip__remove:hover {
+	background: var(--tbt-error-bg);
+	color: var(--tbt-error);
+}
+
+.tbtdd-chip__remove:focus-visible {
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
+}
+
+.tbtdd-chips__count {
+	margin-left: auto;
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+}
+
+/* At the cap the counter turns, so the limit is visible before the next click
+   is rejected rather than only after. */
+.tbtdd-chips__count.is-full {
+	color: var(--tbt-error);
+	font-weight: 600;
+}
+
+/* ---------- Notices ---------- */
+
+.tbtdd-notice {
+	margin-bottom: 24px;
+	padding: 16px;
+	border-left: 4px solid var(--tbt-success);
+	border-radius: var(--tbt-radius-control);
+	background: var(--tbt-success-bg);
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-ui);
+	font-size: 16px;
+}
+
+.tbtdd-notice--error {
+	border-left-color: var(--tbt-error);
+	background: var(--tbt-error-bg);
+	color: var(--tbt-error);
+}
+
+/* Inside a stage card the notice belongs to what is above it, not to the page. */
+.tbtdd-notice--inline {
+	margin: 24px 0 0;
+	font-size: 14px;
+}
+
+/* ---------- Share rows ---------- */
+
+.tbtdd-linkrow {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	margin-bottom: 12px;
+	padding: 10px 10px 10px 16px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-control);
+	background: var(--tbt-input);
+}
+
+.tbtdd-linkrow code {
+	overflow: hidden;
+	color: var(--tbt-blue-dark);
+	font-family: var(--tbt-font-identity);
+	font-size: 13px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tbtdd-linkrow .tbtdd-button {
+	margin-left: auto;
+}
+
+/* ---------- Buttons ---------- */
+
+.tbtdd-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0 20px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-control);
+	background: var(--tbt-surface);
+	color: var(--tbt-blue-dark);
+	font-family: var(--tbt-font-ui);
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	/* Sentence case throughout the tools: these are interface operations, not
+	   learner moments. */
+	text-transform: none;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: transform .18s var(--tbt-ease), border-color .18s var(--tbt-ease), background-color .18s var(--tbt-ease), box-shadow .18s var(--tbt-ease);
+}
+
+.tbtdd-button:hover {
+	border-color: var(--tbt-blue);
+	background: var(--tbt-selected-bg);
+	color: var(--tbt-blue-dark);
+	text-decoration: none;
+}
+
+.tbtdd-button:focus-visible {
+	border-color: var(--tbt-blue);
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
+}
+
+.tbtdd-button--primary {
+	border-color: var(--tbt-blue);
+	background: var(--tbt-blue);
+	color: #FFFFFF;
+	font-weight: 700;
+	box-shadow: var(--tbt-shadow-action);
+}
+
+.tbtdd-button--primary:hover {
+	border-color: var(--tbt-blue-dark);
+	background: var(--tbt-blue-dark);
+	color: #FFFFFF;
+	transform: translateY(-1px);
+	box-shadow: var(--tbt-shadow-raised);
+}
+
+.tbtdd-button--small {
+	min-height: 36px;
+	padding: 0 16px;
+	font-size: 14px;
+}
+
+.tbtdd-button--danger {
+	border-color: transparent;
+	background: transparent;
+	color: var(--tbt-muted);
+	box-shadow: none;
+}
+
+.tbtdd-button--danger:hover {
+	border-color: var(--tbt-error);
+	background: var(--tbt-error-bg);
+	color: var(--tbt-error);
+}
+
+.tbtdd-button[disabled],
+.tbtdd-button[disabled]:hover {
+	opacity: .5;
+	transform: none;
+	border-color: var(--tbt-border);
+	background: var(--tbt-surface);
+	color: var(--tbt-muted);
+	box-shadow: none;
+	cursor: not-allowed;
+}
+
+.tbtdd-button--primary[disabled],
+.tbtdd-button--primary[disabled]:hover {
+	border-color: var(--tbt-blue);
+	background: var(--tbt-blue);
+	color: #FFFFFF;
+}
+
+/* ---------- Action rows ---------- */
+
+.tbtdd-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	margin-top: 32px;
+}
+
+/*
+ * The destructive option lives at the end of the page, behind its own rule and
+ * well away from Publish: a mis-tap here costs the exercise being built.
+ */
+.tbtdd-actions--discard {
+	margin-top: 48px;
+	padding-top: 24px;
+	border-top: 1px solid var(--tbt-border);
+}
+
+.tbtdd-status {
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+}
+
+/* ---------- Library ---------- */
+
+.tbtdd-section-head {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	margin-bottom: 24px;
+}
+
+.tbtdd-section-title {
+	color: var(--tbt-blue);
+	font-family: var(--tbt-font-content);
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.tbtdd-section-rule {
+	flex: 1;
+	height: 2px;
+	background: var(--tbt-border);
+}
+
+.tbtdd-library__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	align-items: flex-end;
+	margin-bottom: 24px;
+}
+
+.tbtdd-library__head .tbtdd-field {
+	margin-top: 0;
+}
+
+.tbtdd-library__head .tbtdd-field--search {
+	flex: 1 1 240px;
+	min-width: 0;
+}
+
+/* Create new closes the row: search narrows what is there, this adds to it. */
+.tbtdd-library__create {
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
+.tbtdd-library__list {
+	display: grid;
+	gap: 12px;
+}
+
+.tbtdd-exercise-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 16px;
+	align-items: center;
+	padding: 20px 24px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-card);
+	background: var(--tbt-surface);
+	box-shadow: var(--tbt-shadow);
+	transition: border-color .18s var(--tbt-ease), box-shadow .18s var(--tbt-ease);
+}
+
+.tbtdd-exercise-row:hover {
+	border-color: var(--tbt-blue);
+	box-shadow: var(--tbt-shadow-raised);
+}
+
+.tbtdd-exercise-row__main {
+	min-width: 0;
+}
+
+.tbtdd-exercise-row__title {
+	margin: 0 0 8px;
+	overflow-wrap: anywhere;
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-content);
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.tbtdd-exercise-row__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+}
+
+.tbtdd-exercise-row__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.tbtdd-exercise-row .tbtdd-share {
+	grid-column: 1 / -1;
+}
+
+.tbtdd-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 12px;
+	border-radius: var(--tbt-radius-pill);
+	font-family: var(--tbt-font-ui);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+}
+
+.tbtdd-badge--published {
+	background: var(--tbt-success-bg);
+	color: var(--tbt-success);
+}
+
+.tbtdd-badge--draft {
+	background: var(--tbt-selected-bg);
+	color: var(--tbt-blue-dark);
+}
+
+.tbtdd-pagination {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	justify-content: center;
+	margin-top: 32px;
+}
+
+.tbtdd-pagination__label {
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+}
+
+/* ---------- Copy rows inside the share panel ---------- */
+
+.tbtdd-share__inner {
+	padding-top: 16px;
+	border-top: 1px solid var(--tbt-border);
+}
+
+.tbtdd-copy + .tbtdd-copy {
+	margin-top: 16px;
+}
+
+.tbtdd-copy__label {
+	display: block;
+	margin-bottom: 8px;
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.tbtdd-copy__row {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.tbtdd-copy__row input {
+	font-family: var(--tbt-font-identity);
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+/* ---------- Create dialog ---------- */
+
+.tbtdd-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: rgba(8, 32, 72, .5);
+}
+
+.tbtdd-modal__dialog {
+	width: min(480px, 100%);
+	padding: 32px;
+	border-radius: var(--tbt-radius-panel);
+	background: var(--tbt-surface);
+	box-shadow: var(--tbt-shadow-raised);
+}
+
+.tbtdd-modal__title {
+	margin: 0 0 24px;
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-content);
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.tbtdd-modal__count {
+	margin-top: 8px;
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 13px;
+}
+
+.tbtdd-modal__error {
+	margin: 16px 0 0;
+	font-size: 14px;
+}
+
+.tbtdd-modal__actions {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+	margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+	.tbtdd-exercise-row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.tbtdd-exercise-row__actions {
+		justify-content: flex-start;
+	}
+
+	.tbtdd-library__create {
+		margin-left: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tbtdd-button,
+	.tbtdd-exercise-row {
+		transition: none;
+	}
+
+	.tbtdd-button--primary:hover {
+		transform: none;
+	}
+}
