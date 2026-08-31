@@ -2,6 +2,41 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.1.1
+
+Fixes the library's Edit links and Create new button resolving to the library's
+own page, and the draft row that read "Edited" with no date after it.
+
+### Fixed
+
+- **`Tools_Shortcode::generator_url()` no longer returns the current page just
+  because it is the page being rendered.** It now resolves in order and stops
+  at the first hit: the `generator=""` attribute, the generator page
+  `remember_tool_page()` recorded the first time `[tbt_drag_generator]`
+  rendered, and only then the current page — and that last step applies solely
+  when `has_shortcode()` finds the generator shortcode in the post content. The
+  `tbt_drag_drop_generator_url` filter still runs last over whatever resolved,
+  and an empty result stays a legitimate answer meaning "no generator page is
+  known". With the two shortcodes on one page nothing changes; with them on two
+  pages the library stops linking to itself.
+- **A library row with nowhere to edit shows no Edit action.** `tools.js` fell
+  back to `window.location.href`, so the Edit link reloaded the library. It now
+  renders the action only when a generator URL resolved — the rule
+  `library.php` already applied to Create new. The row keeps Open, Share,
+  Duplicate and Delete.
+- **No row prints a bare "Edited".** The label is dropped whole when there is
+  no date to show, instead of printing the word with an empty value.
+
+### Changed
+
+- **The list response sends the local modified time, not GMT.** `draft` is a
+  `date_floating` status, so a post inserted as a draft carries
+  `post_modified_gmt` as `0000-00-00 00:00:00` until something calls
+  `wp_update_post()` on it. `get_post_modified_time( 'c', true, $post )` reads
+  that as no date and returns `false`, which is what emptied the label on a
+  freshly created draft. `post_modified` holds a real timestamp from the
+  insert, and `'c'` carries the site's offset, so the client reads it exactly.
+
 ## 2.1.0
 
 Every gap carries a number and every word a letter, so a gap or a word can be

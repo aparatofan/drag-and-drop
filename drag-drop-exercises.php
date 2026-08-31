@@ -3,7 +3,7 @@
  * Plugin Name:       TBT Drag & Drop
  * Plugin URI:        https://github.com/aparatofan/drag-and-drop
  * Description:       Build gap-fill drag-and-drop exercises on the front end, publish them at their own URL, and embed them with a shortcode.
- * Version:           2.1.0
+ * Version:           2.1.1
  * Requires at least: 6.4
  * Requires PHP:      8.0
  * Author:            Mariusz Mirecki
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'TBTDD_VERSION', '2.1.0' );
+define( 'TBTDD_VERSION', '2.1.1' );
 define( 'TBTDD_FILE', __FILE__ );
 define( 'TBTDD_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TBTDD_URL', plugin_dir_url( __FILE__ ) );

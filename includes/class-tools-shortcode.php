@@ -184,6 +184,16 @@ final class Tools_Shortcode {
 	/**
 	 * The generator page URL, used by the library's edit and create actions.
 	 *
+	 * Resolved in order, stopping at the first hit: the generator="…"
+	 * attribute, the page remember_tool_page() recorded the first time the
+	 * generator rendered, and finally the current page — but only if the
+	 * generator shortcode is actually on it.
+	 *
+	 * That last condition is the point. The current page is a valid default
+	 * when the two shortcodes share one, and nothing at all when they do not:
+	 * returning a page URL merely because it is the page being rendered gave
+	 * the library Edit links back to itself, silently.
+	 *
 	 * @param string $attribute The library shortcode's generator="…" value.
 	 * @return string
 	 */
@@ -191,8 +201,12 @@ final class Tools_Shortcode {
 		$default = self::clean_url( $attribute );
 
 		if ( '' === $default ) {
+			$default = self::tool_page_url();
+		}
+
+		if ( '' === $default ) {
 			$post = get_post();
-			if ( $post instanceof \WP_Post ) {
+			if ( $post instanceof \WP_Post && has_shortcode( (string) $post->post_content, self::GENERATOR_SHORTCODE ) ) {
 				$default = (string) get_permalink( $post );
 			}
 		}
@@ -200,10 +214,10 @@ final class Tools_Shortcode {
 		/**
 		 * Filter the URL of the page holding [tbt_drag_generator].
 		 *
-		 * Applied last, over whatever the generator="…" attribute resolved to,
-		 * so a site that already overrides this keeps winning. With no
-		 * attribute and no filter the default is the current page, which is
-		 * right when both shortcodes share one.
+		 * Applied last, over whatever resolved, so a site that already
+		 * overrides this keeps winning. An empty string is a legitimate
+		 * result: it means no generator page is known, and every caller reads
+		 * it as "render no link at all".
 		 *
 		 * @param string $url Generator page URL.
 		 */
