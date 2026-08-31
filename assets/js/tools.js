@@ -636,9 +636,9 @@
 		/**
 		 * The generator page with exercise_id dropped — an empty exercise.
 		 *
-		 * config.generatorUrl carries the shortcode attribute, the filter and
-		 * the current-page default. Nothing resolved means there is no page to
-		 * send the teacher to, and the link stays hidden rather than pointing
+		 * config.generatorUrl carries the shortcode attribute, the recorded
+		 * generator page and the filter. Nothing resolved means there is no page
+		 * to send the teacher to, and the link stays hidden rather than pointing
 		 * at one that cannot be reached.
 		 */
 		function createNewUrl() {
@@ -1100,7 +1100,7 @@
 		 * The generator URL travels on the markup rather than in config: the
 		 * bundle is localised once, before any shortcode has run, so a
 		 * per-instance attribute cannot reach it. config.generatorUrl stays the
-		 * fallback — it carries the filter and the current-page default.
+		 * fallback — it carries the recorded generator page and the filter.
 		 */
 		var generatorUrl = root.getAttribute('data-tbtdd-generator-url') || config.generatorUrl || '';
 		var state = { page: 1, search: '', totalPages: 1 };
@@ -1160,12 +1160,16 @@
 				exercise.status === 'publish' ? t('published') : t('draft')
 			);
 
+			var modified = formatDate(exercise.modified);
+
 			main.appendChild(el('h3', 'tbtdd-exercise-row__title', exercise.title));
-			meta.append(
+			// The date is dropped whole when there is nothing to print, rather
+			// than showing "Edited" followed by a blank.
+			meta.append.apply(meta, [
 				badge,
 				el('span', 'tbtdd-exercise-row__gaps', gapLabel(exercise.gap_count)),
-				el('span', 'tbtdd-exercise-row__date', sprintf(t('modified'), [formatDate(exercise.modified)]))
-			);
+				modified ? el('span', 'tbtdd-exercise-row__date', sprintf(t('modified'), [modified])) : null
+			].filter(Boolean));
 			main.appendChild(meta);
 
 			/*
@@ -1182,8 +1186,17 @@
 				open.setAttribute('aria-label', sprintf(t('openNewTab'), [exercise.title]));
 			}
 
-			var edit = el('a', 'tbtdd-button tbtdd-button--small', t('edit'));
-			edit.href = appendExerciseId(generatorUrl || window.location.href, exercise.id);
+			/*
+			 * No generator page resolved means there is nowhere to edit, so the
+			 * row shows no Edit action — the rule library.php already applies to
+			 * Create new. A row that cannot be edited is honest; a link that
+			 * reloads the library is not.
+			 */
+			var edit = null;
+			if (generatorUrl) {
+				edit = el('a', 'tbtdd-button tbtdd-button--small', t('edit'));
+				edit.href = appendExerciseId(generatorUrl, exercise.id);
+			}
 
 			var shareButton = el('button', 'tbtdd-button tbtdd-button--small', t('share'));
 			var duplicateButton = el('button', 'tbtdd-button tbtdd-button--small', t('duplicate'));

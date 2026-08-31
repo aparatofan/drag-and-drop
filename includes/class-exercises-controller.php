@@ -517,7 +517,16 @@ final class Exercises_Controller {
 			'title'     => $post->post_title,
 			'status'    => $post->post_status,
 			'gap_count' => count( $data['items'] ),
-			'modified'  => get_post_modified_time( 'c', true, $post ),
+			/*
+			 * Local time, not GMT. 'draft' is a date_floating status, so a post
+			 * inserted as a draft is stored with post_modified_gmt as
+			 * 0000-00-00 00:00:00 until something calls wp_update_post() on it;
+			 * get_post_modified_time() reads that as no date and returns false,
+			 * which is why a fresh draft's row printed "Edited" with nothing
+			 * after it. post_modified holds a real timestamp from the insert,
+			 * and 'c' carries the site's offset, so the client reads it exactly.
+			 */
+			'modified'  => (string) get_post_modified_time( 'c', false, $post ),
 			// A draft's permalink 404s for a student, so the tools show the
 			// link only for a published exercise; preview is the draft's way in.
 			'permalink' => 'publish' === $post->post_status ? get_permalink( $post ) : '',
