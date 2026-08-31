@@ -614,6 +614,23 @@ body {
 	font-size: 14px;
 }
 
+/* ---------- The next exercise ----------
+   Swipe puts "Create another deck" in its own block under the saved result
+   rather than in the row of working buttons, at the size of a main action.
+   Same here: this one sits below stage 3, so finishing an exercise and
+   starting the next are visibly two different moves. */
+.tbtdd-next {
+	display: flex;
+	justify-content: center;
+	margin-top: 40px;
+}
+
+.tbtdd-button--next {
+	min-height: 60px;
+	padding: 0 44px;
+	font-size: 18px;
+}
+
 /* ---------- Library ---------- */
 
 .tbtdd-section-head {
@@ -851,6 +868,12 @@ body {
 }
 
 @media (max-width: 760px) {
+	/* Full width rather than a wide pill floating in a narrow column. */
+	.tbtdd-button--next {
+		width: 100%;
+		padding: 0 20px;
+	}
+
 	.tbtdd-exercise-row {
 		grid-template-columns: minmax(0, 1fr);
 	}

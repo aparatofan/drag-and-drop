@@ -73,6 +73,19 @@ final class Renderer {
 			$words[]             = $answer;
 		}
 
+		/*
+		 * The extra words join the bank as equals. They fill no gap, so the
+		 * student sees more tokens than there are gaps and has to choose rather
+		 * than place what is left over. They are absent from $answers, which is
+		 * what makes them wrong wherever they are dropped.
+		 */
+		foreach ( (array) ( $data['distractors'] ?? array() ) as $distractor ) {
+			$distractor = (string) $distractor;
+			if ( '' !== $distractor ) {
+				$words[] = $distractor;
+			}
+		}
+
 		// Shuffled server-side so the bank order is not the answer order even
 		// with JavaScript disabled or still loading.
 		shuffle( $words );

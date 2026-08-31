@@ -161,6 +161,29 @@ final class Admin {
 			<hr/>
 
 			<p>
+				<label for="dd-gap-distractors"><strong><?php esc_html_e( 'Extra words (optional)', 'tbt-drag-drop' ); ?></strong></label>
+			</p>
+			<input
+				type="text"
+				id="dd-gap-distractors"
+				name="dd_gap_distractors"
+				class="widefat"
+				value="<?php echo esc_attr( implode( ', ', $data['distractors'] ) ); ?>"
+				placeholder="<?php esc_attr_e( 'went, has been, were', 'tbt-drag-drop' ); ?>"
+			/>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %d: maximum number of extra words. */
+					esc_html__( 'Words that are not in the text, separated by commas. They join the word bank but fill no gap. Up to %d.', 'tbt-drag-drop' ),
+					(int) Exercise_Validator::MAX_DISTRACTORS
+				);
+				?>
+			</p>
+
+			<hr/>
+
+			<p>
 				<label for="dd-gap-instructions"><strong><?php esc_html_e( 'Student instructions', 'tbt-drag-drop' ); ?></strong></label>
 			</p>
 			<input
@@ -241,6 +264,7 @@ final class Admin {
 			'text'         => isset( $_POST['dd_gap_text'] ) ? wp_unslash( $_POST['dd_gap_text'] ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised by Exercise_Validator.
 			'items'        => isset( $_POST['dd_gap_items'] ) ? (array) wp_unslash( $_POST['dd_gap_items'] ) : array(), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised by Exercise_Validator.
 			'instructions' => isset( $_POST['dd_gap_instructions'] ) ? wp_unslash( $_POST['dd_gap_instructions'] ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised by Exercise_Validator.
+			'distractors'  => isset( $_POST['dd_gap_distractors'] ) ? wp_unslash( $_POST['dd_gap_distractors'] ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised by Exercise_Validator.
 			/*
 			 * This screen has no way to say which occurrence of a word a gap
 			 * means, so it never writes offsets. Whatever is stored is carried

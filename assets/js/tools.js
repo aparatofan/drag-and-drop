@@ -585,6 +585,7 @@
 		var titleField = root.querySelector('[data-tbtdd-field="title"]');
 		var textField = root.querySelector('[data-tbtdd-field="text"]');
 		var instructionsField = root.querySelector('[data-tbtdd-field="instructions"]');
+		var distractorsField = root.querySelector('[data-tbtdd-field="distractors"]');
 		var shareBox = root.querySelector('[data-tbtdd-share]');
 		var saveStatus = root.querySelector('[data-tbtdd-save-status]');
 		var publishButton = root.querySelector('[data-tbtdd-publish]');
@@ -594,6 +595,9 @@
 		var discardButton = root.querySelector('[data-tbtdd-discard]');
 		var discardStatus = root.querySelector('[data-tbtdd-discard-status]');
 		var createNewLink = root.querySelector('[data-tbtdd-create-new]');
+		// The block below stage 3, which is what is shown or hidden: the link
+		// inside it is only ever given its href.
+		var createNewRow = root.querySelector('[data-tbtdd-next]');
 
 		var picker = createPicker({
 			root: root.querySelector('[data-tbtdd-picker]'),
@@ -656,7 +660,7 @@
 		}
 
 		function showCreateNew() {
-			if (!createNewLink) {
+			if (!createNewLink || !createNewRow) {
 				return;
 			}
 
@@ -666,7 +670,7 @@
 			}
 
 			createNewLink.href = target;
-			createNewLink.hidden = false;
+			createNewRow.hidden = false;
 		}
 
 		/**
@@ -674,8 +678,8 @@
 		 * offered to move on from is no longer what is on screen.
 		 */
 		function onEdit() {
-			if (createNewLink) {
-				createNewLink.hidden = true;
+			if (createNewRow) {
+				createNewRow.hidden = true;
 			}
 			refreshStages();
 		}
@@ -689,6 +693,9 @@
 				instructions: fieldValue(instructionsField),
 				items: gaps.items,
 				offsets: gaps.offsets,
+				// Sent as typed. The server splits on commas, drops anything
+				// that matches a gap, and caps the list.
+				distractors: fieldValue(distractorsField),
 				status: publish ? 'publish' : 'draft'
 			};
 		}
@@ -793,6 +800,7 @@
 				}
 
 				renderShare(exercise);
+				syncExtras(exercise);
 				syncDiscard();
 				refreshStages();
 				showCreateNew();
@@ -808,6 +816,19 @@
 			}).then(function () {
 				setBusy(false);
 			});
+		}
+
+		/**
+		 * Show the extra words the server actually stored.
+		 *
+		 * It drops blanks, anything that repeats a gap, and everything past the
+		 * cap, so a field left as typed would claim words the exercise does not
+		 * have. Only rewritten on a save, never while the teacher is typing.
+		 */
+		function syncExtras(exercise) {
+			if (distractorsField && exercise && Array.isArray(exercise.distractors)) {
+				distractorsField.value = exercise.distractors.join(', ');
+			}
 		}
 
 		function syncDiscard() {
@@ -885,7 +906,7 @@
 			});
 		}
 
-		[titleField, instructionsField].forEach(function (field) {
+		[titleField, instructionsField, distractorsField].forEach(function (field) {
 			if (field) {
 				field.addEventListener('input', onEdit);
 			}
