@@ -11,7 +11,7 @@ Keep this file concise. It is loaded at the start of every Claude Code session.
 
 ## Project basics
 
-- WordPress plugin for The Blue Tree, version 2.0.0.
+- WordPress plugin for The Blue Tree, version 2.0.1.
 - Main plugin file: `drag-drop-exercises.php` — bootstrap only: header, constants, includes, hub item, activation hooks, `Plugin::instance()->boot()`.
 - Classes live in `includes/`, markup in `templates/`, assets in `assets/`, all under the `TBT\DragDrop` namespace.
 - The plugin creates `dd_exercise` items, publishes them at `/drag-and-drop/<slug>/`, and embeds them with `[dd_exercise]`.

@@ -95,17 +95,33 @@ body {
 .tbt-tool-hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	gap: 24px;
+	gap: clamp(20px, 4vw, 52px);
 	align-items: center;
-	padding: 40px;
+	padding: 26px 28px;
 	border-radius: var(--tbt-radius-panel);
-	background: linear-gradient(135deg, var(--tbt-blue), var(--tbt-blue-dark));
+	/* The same fade the player's hero uses — see the note in game.css. */
+	background: linear-gradient(
+		92deg,
+		var(--tbt-blue) 0%,
+		var(--tbt-blue) 65%,
+		#FFFFFF 95%
+	);
 	box-shadow: var(--tbt-shadow-raised);
 	color: #FFFFFF;
+	overflow: hidden;
 }
 
+/* Every piece of copy has to stay left of the 65% stop, or white text lands
+   on white. */
 .tbt-tool-hero__content {
 	min-width: 0;
+	max-width: 62%;
+}
+
+/* Hub's [tbt_tree] sets its own inline width; the logo rule below is the PNG
+   fallback for a site with Hub deactivated. */
+.tbt-tool-hero .tbt-tree-host {
+	justify-self: end;
 }
 
 .tbt-tool .tbt-tool-hero__logo {
@@ -167,6 +183,8 @@ body {
 	margin-top: 48px;
 	padding: 40px;
 	border: 1px solid var(--tbt-border);
+	/* The blue top rule is the established TBT Swipe stage-card signature. */
+	border-top: 5px solid var(--tbt-blue);
 	border-radius: var(--tbt-radius-panel);
 	background: var(--tbt-surface);
 	box-shadow: var(--tbt-shadow);
@@ -176,27 +194,60 @@ body {
 	margin-top: 40px;
 }
 
+/*
+ * The rim is the progress bar: grey for a stage that cannot be worked on yet,
+ * blue for the one in hand, green for one that is finished. tools.js keeps
+ * data-state in step with the fields; blue is the default, so only waiting and
+ * done restyle anything.
+ */
+.tbtdd-stage[data-state="waiting"] {
+	border-top-color: var(--tbt-border);
+	/* Swipe's shipped waiting tint. There is no token for it — it sits between
+	   --tbt-surface and --tbt-canvas — and inventing a --tbt-* name for one
+	   component is how a shared vocabulary stops meaning anything. */
+	background: #FAFCFF;
+	box-shadow: none;
+}
+
+.tbtdd-stage[data-state="done"] {
+	border-top-color: var(--tbt-success);
+}
+
+/* One line, not two elements on a baseline: the number and the name read as a
+   single title. */
 .tbtdd-stage__head {
-	display: flex;
-	gap: 10px;
-	align-items: baseline;
-	margin-bottom: 8px;
+	display: block;
+	margin-bottom: 20px;
+}
+
+.tbtdd-stage__no,
+.tbtdd-stage__name {
+	font-family: var(--tbt-font-content);
+	font-size: 28px;
+	font-weight: 700;
+	letter-spacing: -.01em;
+	line-height: 1.2;
 }
 
 .tbtdd-stage__no {
 	color: var(--tbt-blue);
-	font-family: var(--tbt-font-ui);
-	font-size: 14px;
-	font-weight: 700;
+	text-transform: uppercase;
 }
 
+/* Inline so the <h2> keeps its heading semantics without taking its own line. */
 .tbtdd-stage__name {
+	display: inline;
 	margin: 0;
 	color: var(--tbt-ink);
-	font-family: var(--tbt-font-content);
-	font-size: 22px;
-	font-weight: 700;
-	line-height: 1.3;
+}
+
+.tbtdd-stage[data-state="waiting"] .tbtdd-stage__no,
+.tbtdd-stage[data-state="waiting"] .tbtdd-stage__name {
+	color: var(--tbt-muted);
+}
+
+.tbtdd-stage[data-state="done"] .tbtdd-stage__no {
+	color: var(--tbt-success);
 }
 
 .tbtdd-hint {
@@ -206,8 +257,19 @@ body {
 	font-size: 14px;
 }
 
+/*
+ * A stage's own hint sits directly under that one-line title and is sized to
+ * match it, the way Swipe's .tbt-stage-sub does. The 8px top margin collapses
+ * against the head's 20px, which is the gap that shows.
+ */
+.tbtdd-stage > .tbtdd-hint {
+	margin: 8px 0 24px;
+	font-size: 17px;
+}
+
 .tbtdd-hint--field {
 	margin: 8px 0 0;
+	font-size: 14px;
 }
 
 /* ---------- Fields ---------- */
@@ -610,15 +672,31 @@ body {
 	align-items: center;
 	padding: 20px 24px;
 	border: 1px solid var(--tbt-border);
+	/* The rim carries the same information as the badge, which is what makes a
+	   scanned list readable. */
+	border-left: 6px solid var(--tbt-blue);
 	border-radius: var(--tbt-radius-card);
 	background: var(--tbt-surface);
 	box-shadow: var(--tbt-shadow);
-	transition: border-color .18s var(--tbt-ease), box-shadow .18s var(--tbt-ease);
+	transition: transform .18s var(--tbt-ease),
+	            box-shadow .18s var(--tbt-ease),
+	            border-color .18s var(--tbt-ease);
 }
 
 .tbtdd-exercise-row:hover {
-	border-color: var(--tbt-blue);
+	transform: translateY(-2px);
+	border-color: var(--tbt-border);
+	border-left-color: var(--tbt-blue-dark);
 	box-shadow: var(--tbt-shadow-raised);
+}
+
+/* Unfinished, and it keeps the grey on hover rather than flipping blue. */
+.tbtdd-exercise-row--draft {
+	border-left-color: var(--tbt-muted);
+}
+
+.tbtdd-exercise-row--draft:hover {
+	border-left-color: var(--tbt-muted);
 }
 
 .tbtdd-exercise-row__main {
@@ -792,7 +870,8 @@ body {
 		transition: none;
 	}
 
-	.tbtdd-button--primary:hover {
+	.tbtdd-button--primary:hover,
+	.tbtdd-exercise-row:hover {
 		transform: none;
 	}
 }

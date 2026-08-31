@@ -85,7 +85,14 @@ $tbtdd_show_hero = empty( $args['compact'] ) && ( ! empty( $args['show_title'] )
 		<button type="button" class="tbtdd-button tbtdd-button--cta" data-tbtdd-check><?php esc_html_e( 'Check your answers', 'tbt-drag-drop' ); ?></button>
 		<span class="tbtdd-score" data-tbtdd-score hidden></span>
 		<button type="button" class="tbtdd-button" data-tbtdd-show hidden><?php esc_html_e( 'Show correct', 'tbt-drag-drop' ); ?></button>
-		<button type="button" class="tbtdd-button" data-tbtdd-redo hidden><?php esc_html_e( 'Redo exercise', 'tbt-drag-drop' ); ?></button>
+		<?php
+		/*
+		 * Filled, so the row after Check reads as white "Show correct" beside
+		 * blue "Redo exercise" — and once Show correct hides itself, one blue
+		 * button remains rather than a lone white one.
+		 */
+		?>
+		<button type="button" class="tbtdd-button tbtdd-button--primary" data-tbtdd-redo hidden><?php esc_html_e( 'Redo exercise', 'tbt-drag-drop' ); ?></button>
 	</div>
 
 	<script type="application/json" class="tbtdd-config"><?php

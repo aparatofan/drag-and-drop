@@ -73,9 +73,16 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 
 	<div class="tbtdd-notice" data-tbtdd-notice role="status" aria-live="polite" hidden></div>
 
-	<section class="tbtdd-stage">
+	<?php
+	/*
+	 * data-state drives the stage rim: grey when the stage cannot be worked on
+	 * yet, blue while it is in hand, green once it is finished. tools.js keeps
+	 * it in step with the fields; these are the states an exercise opens in.
+	 */
+	?>
+	<section class="tbtdd-stage" data-tbtdd-stage="1" data-state="active">
 		<div class="tbtdd-stage__head">
-			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 1:', 'tbt-drag-drop' ); ?></span>
+			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 1.', 'tbt-drag-drop' ); ?></span>
 			<h2 class="tbtdd-stage__name"><?php esc_html_e( 'Write the exercise', 'tbt-drag-drop' ); ?></h2>
 		</div>
 		<p class="tbtdd-hint"><?php esc_html_e( 'Paste or type the text your students will read. Punctuation and line breaks are kept as written.', 'tbt-drag-drop' ); ?></p>
@@ -109,15 +116,23 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 				data-tbtdd-field="instructions"
 				maxlength="<?php echo esc_attr( (string) Exercise_Validator::INSTRUCTIONS_MAX ); ?>"
 				placeholder="<?php echo esc_attr( Exercise_Repository::default_instructions() ); ?>"
-				value="<?php echo esc_attr( $data['instructions'] ); ?>"
+				<?php
+				/*
+				 * The real sentence, not just a placeholder: a teacher edits
+				 * text that is already there instead of retyping the default to
+				 * change three words of it. Emptying the field still deletes
+				 * the meta, and the renderer still falls back to the default.
+				 */
+				?>
+				value="<?php echo esc_attr( '' !== trim( (string) $data['instructions'] ) ? $data['instructions'] : Exercise_Repository::default_instructions() ); ?>"
 			>
 			<p class="tbtdd-hint tbtdd-hint--field"><?php esc_html_e( 'Shown under the title on the exercise page. Leave empty for the default line.', 'tbt-drag-drop' ); ?></p>
 		</div>
 	</section>
 
-	<section class="tbtdd-stage">
+	<section class="tbtdd-stage" data-tbtdd-stage="2" data-state="active">
 		<div class="tbtdd-stage__head">
-			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 2:', 'tbt-drag-drop' ); ?></span>
+			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 2.', 'tbt-drag-drop' ); ?></span>
 			<h2 class="tbtdd-stage__name"><?php esc_html_e( 'Choose the gaps', 'tbt-drag-drop' ); ?></h2>
 		</div>
 		<p class="tbtdd-hint"><?php esc_html_e( 'Click a word to turn it into a gap. Drag across several words to gap a whole phrase. Click a blue gap to put the words back.', 'tbt-drag-drop' ); ?></p>
@@ -127,9 +142,9 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 		<p class="tbtdd-notice tbtdd-notice--error tbtdd-notice--inline" data-tbtdd-gap-notice role="status" aria-live="polite" hidden></p>
 	</section>
 
-	<section class="tbtdd-stage">
+	<section class="tbtdd-stage" data-tbtdd-stage="3" data-state="active">
 		<div class="tbtdd-stage__head">
-			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 3:', 'tbt-drag-drop' ); ?></span>
+			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 3.', 'tbt-drag-drop' ); ?></span>
 			<h2 class="tbtdd-stage__name"><?php esc_html_e( 'Publish and share', 'tbt-drag-drop' ); ?></h2>
 		</div>
 		<p class="tbtdd-hint"><?php esc_html_e( 'A published exercise has its own page you can send to a student, and a shortcode for a lesson page.', 'tbt-drag-drop' ); ?></p>
@@ -156,6 +171,16 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 			<button type="button" class="tbtdd-button tbtdd-button--primary" data-tbtdd-publish><?php esc_html_e( 'Publish exercise', 'tbt-drag-drop' ); ?></button>
 			<button type="button" class="tbtdd-button" data-tbtdd-preview><?php esc_html_e( 'Preview as student', 'tbt-drag-drop' ); ?></button>
 			<button type="button" class="tbtdd-button" data-tbtdd-draft><?php esc_html_e( 'Save draft', 'tbt-drag-drop' ); ?></button>
+			<?php
+			/*
+			 * Revealed by tools.js once the exercise is saved, and hidden again
+			 * the moment the teacher edits anything: after a save the obvious
+			 * next move is a new exercise, but not while this one is still
+			 * being changed. tools.js sets the href from the generator URL with
+			 * exercise_id dropped, and leaves the link hidden if none resolves.
+			 */
+			?>
+			<a class="tbtdd-button tbtdd-button--primary" data-tbtdd-create-new href="#" hidden><?php esc_html_e( 'Create another exercise', 'tbt-drag-drop' ); ?></a>
 			<span class="tbtdd-status" data-tbtdd-save-status role="status" aria-live="polite"></span>
 		</div>
 	</section>

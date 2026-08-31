@@ -62,9 +62,15 @@ final class Tools_Shortcode {
 			return $gate;
 		}
 
+		/*
+		 * No hero by default: the generator page carries its own header from a
+		 * Divi library block, and a second one below it just repeats the page.
+		 * hero="yes" still renders the canonical Tool Hero for a page that
+		 * wants it. The back link is chrome, not hero, and stays either way.
+		 */
 		$atts = shortcode_atts(
 			array(
-				'hero'    => 'yes',
+				'hero'    => 'no',
 				'library' => '',
 			),
 			is_array( $atts ) ? $atts : array(),

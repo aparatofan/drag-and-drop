@@ -223,6 +223,7 @@
 		var root = options.root;
 		var noticeBox = options.notice;
 		var chipsBox = options.chips;
+		var onChange = options.onChange || function () {};
 
 		var text = '';
 		var parts = [];
@@ -270,6 +271,7 @@
 			if (!parts.length) {
 				root.textContent = t('emptyPicker');
 				renderChips();
+				onChange();
 				return;
 			}
 
@@ -295,6 +297,7 @@
 			}
 
 			renderChips();
+			onChange();
 		}
 
 		function skipPast(index, end) {
@@ -590,17 +593,91 @@
 		var discardRow = root.querySelector('[data-tbtdd-discard-row]');
 		var discardButton = root.querySelector('[data-tbtdd-discard]');
 		var discardStatus = root.querySelector('[data-tbtdd-discard-status]');
+		var createNewLink = root.querySelector('[data-tbtdd-create-new]');
 
 		var picker = createPicker({
 			root: root.querySelector('[data-tbtdd-picker]'),
 			chips: root.querySelector('[data-tbtdd-chips]'),
-			notice: root.querySelector('[data-tbtdd-gap-notice]')
+			notice: root.querySelector('[data-tbtdd-gap-notice]'),
+			onChange: onEdit
 		});
 
 		bindCopies(root);
 
 		function fieldValue(field) {
 			return field ? field.value : '';
+		}
+
+		/**
+		 * Where the teacher is in the flow. All three stages are always in the
+		 * DOM; only their data-state changes, and the CSS does the rest.
+		 *
+		 * Stage 1 is never waiting — it is where the exercise starts, so there
+		 * is nothing it could be waiting for.
+		 */
+		function refreshStages() {
+			var hasText = fieldValue(textField).trim() !== '';
+			var hasGaps = picker.count() > 0;
+
+			setStage(1, hasText ? 'done' : 'active');
+			setStage(2, hasText ? (hasGaps ? 'done' : 'active') : 'waiting');
+			setStage(3, hasGaps ? ('publish' === status ? 'done' : 'active') : 'waiting');
+		}
+
+		function setStage(number, state) {
+			var stage = root.querySelector('[data-tbtdd-stage="' + number + '"]');
+			if (stage) {
+				// 'active' is the default rim colour, but it is written out
+				// anyway so the state is legible in the DOM.
+				stage.setAttribute('data-state', state);
+			}
+		}
+
+		/**
+		 * The generator page with exercise_id dropped — an empty exercise.
+		 *
+		 * config.generatorUrl carries the shortcode attribute, the filter and
+		 * the current-page default. Nothing resolved means there is no page to
+		 * send the teacher to, and the link stays hidden rather than pointing
+		 * at one that cannot be reached.
+		 */
+		function createNewUrl() {
+			if (!config.generatorUrl) {
+				return '';
+			}
+
+			try {
+				var url = new URL(config.generatorUrl, window.location.href);
+				url.searchParams.delete('exercise_id');
+				return url.toString();
+			} catch (error) {
+				return '';
+			}
+		}
+
+		function showCreateNew() {
+			if (!createNewLink) {
+				return;
+			}
+
+			var target = createNewUrl();
+			if (!target) {
+				return;
+			}
+
+			createNewLink.href = target;
+			createNewLink.hidden = false;
+		}
+
+		/**
+		 * Any edit puts the exercise back in play: the saved state the link
+		 * offered to move on from is no longer what is on screen.
+		 */
+		function onEdit() {
+			if (createNewLink) {
+				createNewLink.hidden = true;
+			}
+			refreshStages();
 		}
 
 		function payload(publish) {
@@ -717,6 +794,8 @@
 
 				renderShare(exercise);
 				syncDiscard();
+				refreshStages();
+				showCreateNew();
 
 				if (typeof then === 'function') {
 					then(exercise);
@@ -796,12 +875,21 @@
 			// typing, not wait for the field to be left.
 			var retokeniseTimer = null;
 			textField.addEventListener('input', function () {
+				// Immediately, so the stage rims track the typing; the
+				// re-tokenise behind it is the expensive half.
+				onEdit();
 				window.clearTimeout(retokeniseTimer);
 				retokeniseTimer = window.setTimeout(function () {
 					picker.setText(textField.value);
 				}, 250);
 			});
 		}
+
+		[titleField, instructionsField].forEach(function (field) {
+			if (field) {
+				field.addEventListener('input', onEdit);
+			}
+		});
 
 		if (publishButton) {
 			publishButton.addEventListener('click', function () {
@@ -822,6 +910,7 @@
 
 		picker.setText(fieldValue(textField), initialGaps(root));
 		syncDiscard();
+		refreshStages();
 	}
 
 	function initialGaps(root) {
@@ -1058,7 +1147,9 @@
 		}
 
 		function row(exercise) {
-			var item = el('article', 'tbtdd-exercise-row');
+			// The rim says the same thing as the badge, so a scanned list reads
+			// without stopping on each row.
+			var item = el('article', 'tbtdd-exercise-row' + ('publish' === exercise.status ? '' : ' tbtdd-exercise-row--draft'));
 			var main = el('div', 'tbtdd-exercise-row__main');
 			var meta = el('p', 'tbtdd-exercise-row__meta');
 			var actions = el('div', 'tbtdd-exercise-row__actions');
