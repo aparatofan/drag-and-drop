@@ -1,0 +1,26 @@
+# Never commit secrets or local config
+.env
+.env.*
+*.local
+wp-config.php
+config.php
+secrets.php
+
+# Dependencies / build noise (this plugin uses none, but guard anyway)
+node_modules/
+# Anchored to the repo root on purpose. An unanchored `vendor/` matches at any
+# depth, which would swallow assets/vendor/tbt/ — the bundled tbt-tokens.css
+# fallback would be committed but never actually stored, leaving
+# Assets::ensure_shared_styles() registering a URL that 404s whenever TBT-Hub
+# was inactive. That directory is vendored source we ship, not an installed
+# dependency, so it must stay tracked.
+/vendor/
+*.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

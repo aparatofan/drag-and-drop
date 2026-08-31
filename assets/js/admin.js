@@ -1,102 +1,165 @@
+/**
+ * TBT Drag & Drop — wp-admin exercise builder.
+ *
+ * The typed gap list, unchanged in behaviour from 1.0.0. Click-to-gap is a
+ * front-end interaction and is deliberately not ported here.
+ */
 (function () {
-  const wrap = document.querySelector('.dd-gap-admin-wrap');
-  if (!wrap) return;
+	'use strict';
 
-  const itemsContainer = document.getElementById('dd-gap-items');
-  const addBtn = document.getElementById('dd-gap-add-item');
-  const textInput = document.getElementById('dd-gap-text');
+	var config = window.TBTDDAdmin || {};
+	var strings = config.strings || {};
 
-  function getRows() {
-    return [...itemsContainer.querySelectorAll('.dd-gap-item-row')];
-  }
+	function t(key) {
+		return typeof strings[key] === 'string' ? strings[key] : '';
+	}
 
-  function normalizedValues() {
-    return getRows()
-      .map((row) => row.querySelector('input').value.trim().toLowerCase())
-      .filter(Boolean);
-  }
+	/* ---------- Copy buttons on the list table ---------- */
 
-  function createRow(value = '') {
-    const row = document.createElement('div');
-    row.className = 'dd-gap-item-row';
+	document.addEventListener('click', function (event) {
+		var button = event.target.closest('[data-tbtdd-copy]');
+		if (!button) {
+			return;
+		}
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'dd_gap_items[]';
-    input.className = 'regular-text dd-gap-item-input';
-    input.value = value;
+		event.preventDefault();
+		var value = button.getAttribute('data-tbtdd-copy') || '';
+		var original = button.textContent;
 
-    const remove = document.createElement('button');
-    remove.type = 'button';
-    remove.className = 'button dd-gap-remove-item';
-    remove.textContent = ddGapAdmin.removeLabel;
+		var done = function () {
+			button.textContent = t('copied');
+			window.setTimeout(function () {
+				button.textContent = original;
+			}, 1600);
+		};
 
-    row.append(input, remove);
-    itemsContainer.appendChild(row);
-  }
+		if (window.navigator.clipboard && window.navigator.clipboard.writeText) {
+			window.navigator.clipboard.writeText(value).then(done);
+		}
+	});
 
-  function validateForm(e) {
-    const text = textInput.value;
-    const rows = getRows();
-    const values = rows
-      .map((row) => row.querySelector('input').value.trim())
-      .filter(Boolean);
+	/* ---------- The exercise builder meta box ---------- */
 
-    if (!values.length) {
-      e.preventDefault();
-      alert(ddGapAdmin.minMessage);
-      return;
-    }
+	var wrap = document.querySelector('.dd-gap-admin-wrap');
+	if (!wrap) {
+		return;
+	}
 
-    const lowered = values.map((v) => v.toLowerCase());
-    if (new Set(lowered).size !== lowered.length) {
-      e.preventDefault();
-      alert(ddGapAdmin.duplicateMessage);
-      return;
-    }
+	var itemsContainer = document.getElementById('dd-gap-items');
+	var addButton = document.getElementById('dd-gap-add-item');
+	var textInput = document.getElementById('dd-gap-text');
 
-    const missing = values.some((value) => !text.toLowerCase().includes(value.toLowerCase()));
-    if (missing) {
-      e.preventDefault();
-      alert(ddGapAdmin.missingMessage);
-    }
-  }
+	if (!itemsContainer || !addButton || !textInput) {
+		return;
+	}
 
-  addBtn.addEventListener('click', function () {
-    if (getRows().length >= ddGapAdmin.maxItems) {
-      alert(ddGapAdmin.limitMessage);
-      return;
-    }
-    createRow();
-  });
+	function rows() {
+		return Array.prototype.slice.call(itemsContainer.querySelectorAll('.dd-gap-item-row'));
+	}
 
-  itemsContainer.addEventListener('click', function (e) {
-    const button = e.target.closest('.dd-gap-remove-item');
-    if (!button) return;
+	function values() {
+		return rows().map(function (row) {
+			return row.querySelector('input').value.trim();
+		}).filter(Boolean);
+	}
 
-    const row = button.closest('.dd-gap-item-row');
-    if (row) row.remove();
-  });
+	function createRow(value) {
+		var row = document.createElement('div');
+		var input = document.createElement('input');
+		var remove = document.createElement('button');
 
-  itemsContainer.addEventListener('change', function (e) {
-    if (!e.target.classList.contains('dd-gap-item-input')) return;
-    const value = e.target.value.trim().toLowerCase();
-    if (!value) return;
+		row.className = 'dd-gap-item-row';
 
-    const duplicates = normalizedValues().filter((v) => v === value);
-    if (duplicates.length > 1) {
-      alert(ddGapAdmin.duplicateMessage);
-      e.target.value = '';
-      e.target.focus();
-    }
-  });
+		input.type = 'text';
+		input.name = 'dd_gap_items[]';
+		input.className = 'regular-text dd-gap-item-input';
+		input.value = value || '';
 
-  const postForm = document.getElementById('post');
-  if (postForm) {
-    postForm.addEventListener('submit', validateForm);
-  }
+		remove.type = 'button';
+		remove.className = 'button dd-gap-remove-item';
+		remove.textContent = t('remove');
 
-  if (!getRows().length) {
-    createRow();
-  }
+		row.append(input, remove);
+		itemsContainer.appendChild(row);
+	}
+
+	function validateForm(event) {
+		var text = textInput.value;
+		var current = values();
+
+		if (!current.length) {
+			event.preventDefault();
+			window.alert(t('min'));
+			return;
+		}
+
+		var lowered = current.map(function (value) {
+			return value.toLowerCase();
+		});
+
+		if (new Set(lowered).size !== lowered.length) {
+			event.preventDefault();
+			window.alert(t('duplicate'));
+			return;
+		}
+
+		var missing = current.some(function (value) {
+			return text.toLowerCase().indexOf(value.toLowerCase()) === -1;
+		});
+
+		if (missing) {
+			event.preventDefault();
+			window.alert(t('missing'));
+		}
+	}
+
+	addButton.addEventListener('click', function () {
+		if (rows().length >= (parseInt(config.maxItems, 10) || 7)) {
+			window.alert(t('limit'));
+			return;
+		}
+		createRow();
+	});
+
+	itemsContainer.addEventListener('click', function (event) {
+		var button = event.target.closest('.dd-gap-remove-item');
+		if (!button) {
+			return;
+		}
+
+		var row = button.closest('.dd-gap-item-row');
+		if (row) {
+			row.remove();
+		}
+	});
+
+	itemsContainer.addEventListener('change', function (event) {
+		if (!event.target.classList.contains('dd-gap-item-input')) {
+			return;
+		}
+
+		var value = event.target.value.trim().toLowerCase();
+		if (!value) {
+			return;
+		}
+
+		var duplicates = values().filter(function (other) {
+			return other.toLowerCase() === value;
+		});
+
+		if (duplicates.length > 1) {
+			window.alert(t('duplicate'));
+			event.target.value = '';
+			event.target.focus();
+		}
+	});
+
+	var postForm = document.getElementById('post');
+	if (postForm) {
+		postForm.addEventListener('submit', validateForm);
+	}
+
+	if (!rows().length) {
+		createRow();
+	}
 })();
