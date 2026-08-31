@@ -2,6 +2,70 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.0.1
+
+Corrections after the first live review. No structural change and no new
+dependencies; the version bump is also the asset cache bust.
+
+### Style Book divergence
+
+Style Book §6B still describes the old `135deg` blue-to-navy Tool Hero. Both
+shipped tools — TBT Matching Games and TBT Swipe — moved to a `92deg`
+blue-to-white fade with the tree mark sitting in the pale end, and the shipped
+version is what this release matches. The Style Book is deliberately **not**
+edited here; this note records the divergence so the next Style Book revision
+can settle it.
+
+The canonical sources this pass took its values from are
+`tbt_matching_game`'s `.tbtmg-hero` and `tbt-swipe`'s `.tbt-stage-card`,
+`.tbt-deck` and buttons.
+
+### Changed
+
+- **Both heroes** — the player's `.tbtdd-hero` and the tools' `.tbt-tool-hero` —
+  take the shipped gradient and geometry: `92deg` blue to 65%, white by 95%,
+  `clamp(20px, 4vw, 52px)` gap, `26px 28px` padding, `overflow: hidden`. Hero
+  copy is capped at `max-width: 62%` so no white text can reach the pale end.
+- **The tool heroes show the colour tree.** `templates/tool-hero.php` printed
+  the flat white PNG unconditionally, so the generator and library heroes wore a
+  ghost tree while the player had Hub's animated mark. They now use the same
+  `[tbt_tree]` fallback the player does, with `animate="no"`: a tool page is a
+  workspace, not an arrival.
+- **The generator renders no hero by default.** `[tbt_drag_generator]` now
+  defaults to `hero="no"`, since that page supplies its own header from a Divi
+  library block. `hero="yes"` still renders the canonical Tool Hero, and the
+  library default (`no`) is unchanged. The "Back to my exercises" link stays —
+  it is chrome, not hero.
+- **Stage cards match Swipe.** A 5px coloured top rim, and the stage number and
+  name as one 28px content-face line instead of a 14px label above a 22px
+  heading. `tools.js` keeps a `data-state` on each stage, so the rims run grey →
+  blue → green as the exercise is built: stage 1 done once there is text, stage
+  2 waiting until there is, done once there is a gap, stage 3 waiting until
+  there are gaps and done once published.
+- **Library rows take Swipe's left rim** — 6px, blue for published and
+  `--tbt-muted` for a draft, lifting 2px on hover and holding the grey on a
+  draft. The rim carries the same information as the badge, which is what makes
+  a scanned list readable.
+- **A filled token shows one border.** A token inside a slot now gives up its
+  own border and background; the slot keeps the frame and, after checking,
+  carries the verdict. A token in the bank is unchanged.
+- **Redo exercise is a filled button.** A new sentence-case
+  `.tbtdd-button--primary` sits beside the uppercase Check CTA, so the row after
+  checking reads white "Show correct" next to blue "Redo exercise" — and once
+  Show correct hides itself, no lone white button is left. Uppercase stays
+  reserved for Check.
+- **The instructions field opens with the default sentence in it**, not just as
+  a placeholder, so a teacher edits real text instead of retyping the default to
+  change three words. Emptying the field still deletes the meta and the renderer
+  still falls back to the default.
+
+### Added
+
+- **"Create another exercise"** in Stage 3, mirroring Swipe's `Create another
+  deck`. Revealed after any successful publish or draft save, hidden again as
+  soon as the teacher edits anything, and left hidden when no generator URL
+  resolves rather than pointing at a page that cannot be reached.
+
 ## 2.0.0
 
 The admin-only gap-fill plugin becomes a full TBT Teacher Tool: exercises have

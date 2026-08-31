@@ -75,17 +75,30 @@
 .tbtdd-hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	gap: 24px;
+	gap: clamp(20px, 4vw, 52px);
 	align-items: center;
-	padding: 40px;
+	padding: 26px 28px;
 	border-radius: var(--tbt-radius-panel);
-	background: linear-gradient(135deg, var(--tbt-blue), var(--tbt-blue-dark));
+	/* Blue holds to 65%, white by 95%. The mark sits in the pale end, where the
+	   leaves land on TBT blue at the end of their bloom. Style Book §6B still
+	   describes the old 135deg blue-to-navy hero; both shipped tools moved to
+	   this fade and the shipped version wins. */
+	background: linear-gradient(
+		92deg,
+		var(--tbt-blue) 0%,
+		var(--tbt-blue) 65%,
+		#FFFFFF 95%
+	);
 	box-shadow: var(--tbt-shadow-raised);
 	color: #FFFFFF;
+	overflow: hidden;
 }
 
+/* Every piece of copy has to stay left of the 65% stop, or white text lands
+   on white. */
 .tbtdd-hero__content {
 	min-width: 0;
+	max-width: 62%;
 }
 
 .tbtdd-hero__eyebrow {
@@ -294,10 +307,21 @@
 	background: var(--tbt-error-bg);
 }
 
-/* A token in a slot is already framed by the slot, so it drops its own lift. */
+/* The slot keeps the frame; a token inside it gives up its own, or the two
+   borders sit one inside the other. A token in the bank is unchanged. */
 .tbtdd-slot .tbtdd-token {
 	padding: 6px 12px;
+	border-color: transparent;
+	background: transparent;
 	box-shadow: none;
+}
+
+/* After checking, the slot carries the verdict. The token contributes only its
+   text colour, which the .is-correct / .is-wrong rules already set. */
+.tbtdd-slot .tbtdd-token.is-correct,
+.tbtdd-slot .tbtdd-token.is-wrong {
+	border-color: transparent;
+	background: transparent;
 }
 
 /* ---------- Actions ---------- */
@@ -340,6 +364,26 @@
 	border-color: var(--tbt-blue);
 	box-shadow: var(--tbt-focus-ring);
 	outline: none;
+}
+
+/*
+ * Filled but sentence case. Redo only appears after Check, and a row of one
+ * white button reads as unfinished; uppercase stays reserved for Check, which
+ * is the only call to action here.
+ */
+.tbtdd-button--primary {
+	border-color: var(--tbt-blue);
+	background: var(--tbt-blue);
+	color: #FFFFFF;
+	box-shadow: var(--tbt-shadow-action);
+}
+
+.tbtdd-button--primary:hover {
+	border-color: var(--tbt-blue-dark);
+	background: var(--tbt-blue-dark);
+	color: #FFFFFF;
+	transform: translateY(-1px);
+	box-shadow: var(--tbt-shadow-raised);
 }
 
 /* The single call to action on the page. */
@@ -398,7 +442,8 @@
 		transition: none;
 	}
 
-	.tbtdd-button--cta:hover {
+	.tbtdd-button--cta:hover,
+	.tbtdd-button--primary:hover {
 		transform: none;
 	}
 }
