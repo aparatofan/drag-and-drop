@@ -2,6 +2,45 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.2.0
+
+Optional extra words in the bank, and the "Create another exercise" button
+moved out of stage 3's working row.
+
+### Added
+
+- **Extra words.** A teacher can type words that are *not* in the exercise text;
+  they join the word bank, fill no gap, and are wrong wherever they are dropped.
+  The student therefore sees more words than there are gaps and has to choose
+  rather than place what is left over. Entirely optional: an exercise with none
+  behaves exactly as before.
+  - Stored in a fifth meta key, `_dd_gap_distractors`, owned by
+    `Exercise_Repository` like the other four and deleted rather than stored
+    empty.
+  - `Exercise_Validator::clean_distractors()` accepts a list or one
+    comma-separated string, strips markup, drops blanks, drops anything that
+    repeats a gap item (two identical tokens where one is the answer is not a
+    harder exercise, it is an unfair one), and caps the list at
+    `MAX_DISTRACTORS` (7). Deliberately *not* checked against the text: being
+    absent from it is the point.
+  - Both authoring paths have the field — "Extra words (optional)" at the end of
+    the generator's stage 2, and the same field in the wp-admin meta box — and
+    both write it through the repository, so neither path can silently drop what
+    the other stored. The REST payload keeps the stored list when the key is
+    absent from the body, for the same reason.
+  - The generator writes the field back from the save response, so words the
+    server dropped or truncated do not linger on screen as if they were saved.
+
+### Changed
+
+- **"Create another exercise" sits below stage 3, at the size of a main action**
+  (60px tall, 18px label, full width on narrow screens), in its own centred
+  block rather than in the stage's button row. It follows TBT Swipe, where
+  "Create another deck" is a block of its own under the saved result instead of
+  a fourth button beside the working ones: finishing this exercise and starting
+  the next are two different moves. It still appears only once the exercise is
+  saved and hides again on the first edit.
+
 ## 2.1.1
 
 Fixes the library's Edit links and Create new button resolving to the library's

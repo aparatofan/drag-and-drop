@@ -9,7 +9,7 @@ No AI generation.
 
 - **Main file:** `drag-drop-exercises.php` (never rename it — see below)
 - **Server folder:** `/drag-drop-exercises/`
-- **Version:** 2.1.1 · **Requires:** WordPress 6.4, PHP 8.0
+- **Version:** 2.2.0 · **Requires:** WordPress 6.4, PHP 8.0
 
 ## Shortcodes
 
@@ -62,7 +62,7 @@ Filters: `tbt_drag_drop_can_use_tools`, `tbt_drag_drop_tool_roles`,
 
 ## Stored data
 
-Four post meta keys on the `dd_exercise` post type. All writes go through
+Five post meta keys on the `dd_exercise` post type. All writes go through
 `Exercise_Repository`; nothing else touches them.
 
 | Key | Type | Notes |
@@ -71,6 +71,7 @@ Four post meta keys on the `dd_exercise` post type. All writes go through
 | `_dd_gap_items` | `string[]` | Gap texts in reading order, max 7, no duplicates (case-insensitive). Unchanged since 1.0.0. |
 | `_dd_gap_offsets` | `int[]` | Byte offset in `_dd_gap_text` where each gap begins, index-aligned with `_dd_gap_items`. Written by the front end only. |
 | `_dd_gap_instructions` | `string` | Optional player support line; falls back to a default when empty. |
+| `_dd_gap_distractors` | `string[]` | Optional extra bank words, max 7, that fill no gap. Not in the text, and never equal to a gap item. |
 
 `_dd_gap_offsets` is what lets a gap made from the *second* occurrence of a
 repeated word gap that occurrence. The renderer uses an offset only when
@@ -82,6 +83,12 @@ stale.
 The meta box cannot express which occurrence a gap means, so it never writes
 offsets, and it clears them when a save changes the text or the item list rather
 than leaving positions that describe a document that no longer exists.
+
+`_dd_gap_distractors` is the one list deliberately *not* checked against the
+text: an extra word exists to be wrong, so being absent from the text is the
+point. Both authoring paths type them into one comma-separated field and
+`Exercise_Validator` does the splitting, the de-duplication against the gap
+items, and the cap.
 
 ## REST API
 

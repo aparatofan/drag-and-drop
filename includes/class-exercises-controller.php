@@ -485,6 +485,12 @@ final class Exercises_Controller {
 			'items'        => isset( $body['items'] ) && is_array( $body['items'] ) ? array_values( $body['items'] ) : (array) $existing['items'],
 			'offsets'      => isset( $body['offsets'] ) && is_array( $body['offsets'] ) ? array_values( $body['offsets'] ) : (array) $existing['offsets'],
 			'instructions' => isset( $body['instructions'] ) && is_scalar( $body['instructions'] ) ? (string) $body['instructions'] : (string) $existing['instructions'],
+			// A list or one comma-separated string; Exercise_Validator owns the
+			// split. Absent from the body means keep what is stored, so a client
+			// that does not know about extra words cannot silently drop them.
+			'distractors'  => ( isset( $body['distractors'] ) && ( is_array( $body['distractors'] ) || is_scalar( $body['distractors'] ) ) )
+				? $body['distractors']
+				: (array) $existing['distractors'],
 		);
 	}
 

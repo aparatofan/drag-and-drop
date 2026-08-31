@@ -2,14 +2,14 @@
 /**
  * Exercise persistence.
  *
- * The single owner of the four exercise meta keys. Nothing else in this plugin
+ * The single owner of the exercise meta keys. Nothing else in this plugin
  * calls get_post_meta() or update_post_meta() for them: the meta box and the
  * REST controller both write through here, which is what keeps two authoring
  * paths from drifting into two definitions of what is stored.
  *
  * The key names are unchanged stored data. _dd_gap_text and _dd_gap_items date
- * from 1.0.0 and must keep their meaning; _dd_gap_offsets and
- * _dd_gap_instructions are additive.
+ * from 1.0.0 and must keep their meaning; _dd_gap_offsets,
+ * _dd_gap_instructions and _dd_gap_distractors are additive.
  *
  * @package TBT_Drag_Drop
  */
@@ -25,6 +25,15 @@ final class Exercise_Repository {
 	public const META_ITEMS        = '_dd_gap_items';
 	public const META_OFFSETS      = '_dd_gap_offsets';
 	public const META_INSTRUCTIONS = '_dd_gap_instructions';
+
+	/**
+	 * Extra bank words that fill no gap.
+	 *
+	 * Unlike the gap items these are not in the exercise text and never will
+	 * be: they exist to make the bank bigger than the number of gaps, so the
+	 * student has to choose rather than place what is left.
+	 */
+	public const META_DISTRACTORS = '_dd_gap_distractors';
 
 	private Exercise_Validator $validator;
 	private array $request_cache = array();
@@ -45,6 +54,7 @@ final class Exercise_Repository {
 			'items'        => array(),
 			'offsets'      => array(),
 			'instructions' => '',
+			'distractors'  => array(),
 		);
 	}
 
@@ -74,12 +84,16 @@ final class Exercise_Repository {
 		$offsets = get_post_meta( $post_id, self::META_OFFSETS, true );
 		$offsets = is_array( $offsets ) ? array_values( array_map( 'intval', $offsets ) ) : array();
 
+		$distractors = get_post_meta( $post_id, self::META_DISTRACTORS, true );
+		$distractors = is_array( $distractors ) ? array_values( array_map( 'strval', $distractors ) ) : array();
+
 		$data = array(
 			'title'        => (string) get_the_title( $post_id ),
 			'text'         => (string) get_post_meta( $post_id, self::META_TEXT, true ),
 			'items'        => $items,
 			'offsets'      => $offsets,
 			'instructions' => (string) get_post_meta( $post_id, self::META_INSTRUCTIONS, true ),
+			'distractors'  => $distractors,
 		);
 
 		$this->request_cache[ $post_id ] = $data;
@@ -140,6 +154,14 @@ final class Exercise_Repository {
 			delete_post_meta( $post_id, self::META_INSTRUCTIONS );
 		} else {
 			update_post_meta( $post_id, self::META_INSTRUCTIONS, $clean['instructions'] );
+		}
+
+		// Deleted rather than stored empty, as with the offsets: an exercise
+		// with no extra words reads the same as one that never had any.
+		if ( empty( $clean['distractors'] ) ) {
+			delete_post_meta( $post_id, self::META_DISTRACTORS );
+		} else {
+			update_post_meta( $post_id, self::META_DISTRACTORS, $clean['distractors'] );
 		}
 
 		$clean['title'] = (string) get_the_title( $post_id );

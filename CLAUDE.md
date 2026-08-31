@@ -11,7 +11,7 @@ Keep this file concise. It is loaded at the start of every Claude Code session.
 
 ## Project basics
 
-- WordPress plugin for The Blue Tree, version 2.1.1.
+- WordPress plugin for The Blue Tree, version 2.2.0.
 - Main plugin file: `drag-drop-exercises.php` — bootstrap only: header, constants, includes, hub item, activation hooks, `Plugin::instance()->boot()`.
 - Classes live in `includes/`, markup in `templates/`, assets in `assets/`, all under the `TBT\DragDrop` namespace.
 - The plugin creates `dd_exercise` items, publishes them at `/drag-and-drop/<slug>/`, and embeds them with `[dd_exercise]`.
@@ -21,7 +21,7 @@ Keep this file concise. It is loaded at the start of every Claude Code session.
 
 ## Architecture rules
 
-- **`Exercise_Repository` owns the four exercise meta keys.** No other class may call `get_post_meta()` or `update_post_meta()` for `_dd_gap_text`, `_dd_gap_items`, `_dd_gap_offsets` or `_dd_gap_instructions`. Two authoring paths, one definition of what is stored.
+- **`Exercise_Repository` owns the exercise meta keys.** No other class may call `get_post_meta()` or `update_post_meta()` for `_dd_gap_text`, `_dd_gap_items`, `_dd_gap_offsets`, `_dd_gap_instructions` or `_dd_gap_distractors`. Two authoring paths, one definition of what is stored.
 - **`Exercise_Validator` owns sanitisation and validation.** `sanitise()` cleans without enforcing completeness (draft saves); `validate()` adds the completeness rules (publishing).
 - Keep authoring/admin behavior separate from learner-facing rendering.
 - Preserve existing shortcode compatibility when changing rendering or assets.
@@ -29,7 +29,7 @@ Keep this file concise. It is loaded at the start of every Claude Code session.
 
 ## Behavior to preserve
 
-- An exercise consists of source text plus 1–7 gap items, with no duplicates (case-insensitive).
+- An exercise consists of source text plus 1–7 gap items, with no duplicates (case-insensitive), and optionally up to 7 extra bank words that fill no gap.
 - **The plugin is desktop-only by decision.** HTML5 drag plus click-to-place. Do not add touch event handling.
 - Saved exercise content is WordPress-managed data; do not invent migrations or alter stored formats unless the task requires it. `dd_exercise`, `[dd_exercise]`, `_dd_gap_text` and `_dd_gap_items` are stored data and keep their names.
 - Offsets are an optimisation of fidelity, never a requirement: a missing or stale offset must fall back to first-occurrence matching, never fail the exercise.

@@ -140,6 +140,34 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 		<div class="tbtdd-picker" data-tbtdd-picker></div>
 		<div class="tbtdd-chips" data-tbtdd-chips></div>
 		<p class="tbtdd-notice tbtdd-notice--error tbtdd-notice--inline" data-tbtdd-gap-notice role="status" aria-live="polite" hidden></p>
+
+		<div class="tbtdd-field tbtdd-field--extras">
+			<label for="<?php echo esc_attr( $tbtdd_uid ); ?>-distractors"><?php esc_html_e( 'Extra words (optional)', 'tbt-drag-drop' ); ?></label>
+			<?php
+			/*
+			 * Typed, not picked: these words are precisely the ones the picker
+			 * cannot offer, because they are not in the text. One field with
+			 * commas rather than a row of inputs — a teacher adds two or three
+			 * of these in passing, and Exercise_Validator does the splitting.
+			 */
+			?>
+			<input
+				type="text"
+				id="<?php echo esc_attr( $tbtdd_uid ); ?>-distractors"
+				data-tbtdd-field="distractors"
+				placeholder="<?php esc_attr_e( 'Example: went, has been, were', 'tbt-drag-drop' ); ?>"
+				value="<?php echo esc_attr( implode( ', ', $data['distractors'] ) ); ?>"
+			>
+			<p class="tbtdd-hint tbtdd-hint--field">
+				<?php
+				printf(
+					/* translators: %d: maximum number of extra words. */
+					esc_html__( 'Words that are not in the text, separated by commas. They join the word bank but fill no gap, so students see more words than they need. Up to %d.', 'tbt-drag-drop' ),
+					(int) Exercise_Validator::MAX_DISTRACTORS
+				);
+				?>
+			</p>
+		</div>
 	</section>
 
 	<section class="tbtdd-stage" data-tbtdd-stage="3" data-state="active">
@@ -171,19 +199,23 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 			<button type="button" class="tbtdd-button tbtdd-button--primary" data-tbtdd-publish><?php esc_html_e( 'Publish exercise', 'tbt-drag-drop' ); ?></button>
 			<button type="button" class="tbtdd-button" data-tbtdd-preview><?php esc_html_e( 'Preview as student', 'tbt-drag-drop' ); ?></button>
 			<button type="button" class="tbtdd-button" data-tbtdd-draft><?php esc_html_e( 'Save draft', 'tbt-drag-drop' ); ?></button>
-			<?php
-			/*
-			 * Revealed by tools.js once the exercise is saved, and hidden again
-			 * the moment the teacher edits anything: after a save the obvious
-			 * next move is a new exercise, but not while this one is still
-			 * being changed. tools.js sets the href from the generator URL with
-			 * exercise_id dropped, and leaves the link hidden if none resolves.
-			 */
-			?>
-			<a class="tbtdd-button tbtdd-button--primary" data-tbtdd-create-new href="#" hidden><?php esc_html_e( 'Create another exercise', 'tbt-drag-drop' ); ?></a>
 			<span class="tbtdd-status" data-tbtdd-save-status role="status" aria-live="polite"></span>
 		</div>
 	</section>
+
+	<?php
+	/*
+	 * Below the stage, not inside its button row: finishing this exercise and
+	 * starting the next one are different moves, and the row is where the
+	 * teacher works on the exercise they still have open. Revealed by tools.js
+	 * once the exercise is saved and hidden again the moment anything is
+	 * edited; tools.js sets the href from the generator URL with exercise_id
+	 * dropped, and leaves it hidden if none resolves.
+	 */
+	?>
+	<div class="tbtdd-next" data-tbtdd-next hidden>
+		<a class="tbtdd-button tbtdd-button--primary tbtdd-button--next" data-tbtdd-create-new href="#"><?php esc_html_e( 'Create another exercise', 'tbt-drag-drop' ); ?></a>
+	</div>
 
 	<?php
 	/*

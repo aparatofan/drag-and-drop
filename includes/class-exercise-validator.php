@@ -26,6 +26,15 @@ final class Exercise_Validator {
 	public const MAX_ITEMS = 7;
 
 	/**
+	 * Extra bank words per exercise.
+	 *
+	 * The same reading limit as the gaps, applied to the other half of the
+	 * bank: seven gaps plus seven extras is already a long row of tokens to
+	 * scan before choosing one.
+	 */
+	public const MAX_DISTRACTORS = 7;
+
+	/**
 	 * Length caps. The title lives in the player hero, the instructions in the
 	 * support line beneath it, so both are layout constraints.
 	 */
@@ -106,6 +115,7 @@ final class Exercise_Validator {
 			'items'        => $items,
 			'offsets'      => $offsets,
 			'instructions' => $instructions,
+			'distractors'  => $this->clean_distractors( $raw, $items ),
 		);
 	}
 
@@ -170,6 +180,67 @@ final class Exercise_Validator {
 		}
 
 		return array( $items, $offsets );
+	}
+
+	/**
+	 * Clean the extra bank words.
+	 *
+	 * Deliberately not checked against the text: an extra word exists to be
+	 * wrong, so being absent from the text is the whole point, and that is what
+	 * separates this list from the gap items.
+	 *
+	 * Accepts a list or one comma-separated string, because the front-end field
+	 * is a single input the teacher types into and the meta box is the same:
+	 * splitting here keeps one definition of what an extra word is.
+	 *
+	 * A word that matches a gap item is dropped. Two identical tokens where one
+	 * of them is the answer is not a harder exercise, it is an unfair one.
+	 *
+	 * @param array $raw Raw exercise data.
+	 * @param array $items Clean gap items.
+	 * @return string[]
+	 */
+	private function clean_distractors( array $raw, array $items ): array {
+		$raw_distractors = $raw['distractors'] ?? array();
+
+		if ( is_scalar( $raw_distractors ) ) {
+			$raw_distractors = explode( ',', (string) $raw_distractors );
+		}
+
+		if ( ! is_array( $raw_distractors ) ) {
+			return array();
+		}
+
+		$seen = array();
+		foreach ( $items as $item ) {
+			$seen[ $this->duplicate_key( (string) $item ) ] = true;
+		}
+
+		$distractors = array();
+		foreach ( $raw_distractors as $raw_distractor ) {
+			if ( ! is_scalar( $raw_distractor ) ) {
+				continue;
+			}
+
+			$distractor = trim( wp_strip_all_tags( (string) $raw_distractor ) );
+			if ( '' === $distractor ) {
+				continue;
+			}
+
+			$key = $this->duplicate_key( $distractor );
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+
+			$seen[ $key ]  = true;
+			$distractors[] = $distractor;
+
+			if ( count( $distractors ) >= self::MAX_DISTRACTORS ) {
+				break;
+			}
+		}
+
+		return $distractors;
 	}
 
 	/**
