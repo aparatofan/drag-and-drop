@@ -64,18 +64,30 @@ final class Renderer {
 		$reading_html = $this->reading_html( (string) $data['text'], $positions );
 
 		$answers = array();
-		$bank    = array();
+		$words   = array();
 		foreach ( $positions as $slot_number => $position ) {
 			$answer  = (string) $data['items'][ $position['index'] ];
 			$slot_id = 'slot-' . ( $slot_number + 1 );
 
 			$answers[ $slot_id ] = $answer;
-			$bank[]              = $answer;
+			$words[]             = $answer;
 		}
 
 		// Shuffled server-side so the bank order is not the answer order even
 		// with JavaScript disabled or still loading.
-		shuffle( $bank );
+		shuffle( $words );
+
+		// Letters are read off the shuffled bank and nothing else, so a letter
+		// can never hint at the gap its word belongs to. The letter belongs to
+		// the word: once assigned it travels with the token for the whole
+		// attempt, and only a redo reshuffle reassigns it.
+		$bank = array();
+		foreach ( $words as $bank_index => $bank_word ) {
+			$bank[] = array(
+				'word'   => $bank_word,
+				'letter' => self::bank_letter( $bank_index ),
+			);
+		}
 
 		$instructions = '' !== trim( (string) $data['instructions'] )
 			? (string) $data['instructions']
@@ -105,7 +117,8 @@ final class Renderer {
 	 *
 	 * Slots are numbered in reading order, which is the order the positions
 	 * arrive in, so slot-1 is always the first gap on the page whatever order
-	 * the items were chosen in.
+	 * the items were chosen in. That same number is printed beside the slot so
+	 * a gap can be named out loud during a lesson.
 	 *
 	 * @param string $text Exercise text.
 	 * @param array  $positions Resolved gap positions.
@@ -120,8 +133,12 @@ final class Renderer {
 				$html .= $this->text_run( substr( $text, $cursor, $position['start'] - $cursor ) );
 			}
 
+			// The number and the slot share a wrapper so they stay together
+			// across a line break. The badge is aria-hidden because the slot's
+			// own label already announces the gap by number.
 			$html .= sprintf(
-				'<span class="tbtdd-slot" data-slot="%1$s" tabindex="0" role="button" aria-label="%2$s"></span>',
+				'<span class="tbtdd-gap"><span class="tbtdd-tag tbtdd-tag--number" aria-hidden="true">%1$s</span><span class="tbtdd-slot" data-slot="%2$s" tabindex="0" role="button" aria-label="%3$s"></span></span>',
+				esc_html( (string) ( $slot_number + 1 ) ),
 				esc_attr( 'slot-' . ( $slot_number + 1 ) ),
 				esc_attr(
 					sprintf(
@@ -154,5 +171,19 @@ final class Renderer {
 	 */
 	private function text_run( string $run ): string {
 		return nl2br( esc_html( $run ), false );
+	}
+
+	/**
+	 * Bank letter for a position: A, B, C …
+	 *
+	 * A bank holds at most Exercise_Validator::MAX_ITEMS words, so one letter
+	 * always suffices; the wrap only keeps an oversized bank from running past
+	 * Z into punctuation.
+	 *
+	 * @param int $index Zero-based position in the shuffled bank.
+	 * @return string
+	 */
+	private static function bank_letter( int $index ): string {
+		return chr( 65 + ( $index % 26 ) );
 	}
 }
