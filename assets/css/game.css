@@ -190,6 +190,8 @@
 .tbtdd-token {
 	display: inline-flex;
 	align-items: center;
+	/* Letter badge to word. */
+	gap: 10px;
 	padding: 8px 16px;
 	border: 1px solid var(--tbt-border);
 	border-radius: var(--tbt-radius-control);
@@ -242,6 +244,28 @@
 	color: var(--tbt-error);
 }
 
+/* ---------- Labels ----------
+   A letter on every word and a number on every gap, so a gap can be named out
+   loud during a lesson. The letter is a flex child of the token rather than an
+   overlay: over the word, a short badge and a short word collide. */
+.tbtdd-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	min-width: 22px;
+	height: 22px;
+	padding: 0 6px;
+	border-radius: var(--tbt-radius-pill);
+	background: var(--tbt-le);
+	color: #FFFFFF;
+	font-family: var(--tbt-font-ui);
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: .02em;
+}
+
 /* ---------- Reading panel ---------- */
 
 .tbtdd-reading {
@@ -259,6 +283,17 @@
 	line-height: 2.6;
 }
 
+/* ---------- Gap: the number and its slot ----------
+   One inline-flex wrapper so the badge and the slot never break apart across a
+   line, and so the pair moves as one unit within a sentence. */
+.tbtdd-gap {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 4px;
+	vertical-align: middle;
+}
+
 /* ---------- Slot ---------- */
 
 .tbtdd-slot {
@@ -267,7 +302,8 @@
 	justify-content: center;
 	min-width: 130px;
 	min-height: 44px;
-	margin: 0 4px;
+	/* The .tbtdd-gap wrapper owns the spacing now. */
+	margin: 0;
 	padding: 2px 6px;
 	border: 1px dashed var(--tbt-border);
 	border-radius: var(--tbt-radius-control);

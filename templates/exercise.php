@@ -3,7 +3,8 @@
  * Shared exercise player markup.
  *
  * Available variables: $post, $data, $args, $instance_id, $config,
- * $reading_html, $bank, $instructions.
+ * $reading_html, $bank, $instructions. $bank is a list of
+ * array( 'word' => string, 'letter' => string ) in shuffled order.
  *
  * @package TBT_Drag_Drop
  */
@@ -65,13 +66,21 @@ $tbtdd_show_hero = empty( $args['compact'] ) && ( ! empty( $args['show_title'] )
 	<?php endif; ?>
 
 	<div class="tbtdd-bank" data-tbtdd-bank aria-label="<?php esc_attr_e( 'Words to place', 'tbt-drag-drop' ); ?>">
-		<?php foreach ( $bank as $tbtdd_word ) : ?>
+		<?php foreach ( $bank as $tbtdd_entry ) : ?>
+			<?php
+			/*
+			 * The letter is a flex child of the token, not an overlay: it has to
+			 * sit beside the word rather than on top of it. game.js reads
+			 * data-tbtdd-letter to keep the bank in letter order.
+			 */
+			?>
 			<button
 				type="button"
 				class="tbtdd-token"
 				draggable="true"
-				data-tbtdd-token="<?php echo esc_attr( $tbtdd_word ); ?>"
-			><?php echo esc_html( $tbtdd_word ); ?></button>
+				data-tbtdd-token="<?php echo esc_attr( $tbtdd_entry['word'] ); ?>"
+				data-tbtdd-letter="<?php echo esc_attr( $tbtdd_entry['letter'] ); ?>"
+			><span class="tbtdd-tag tbtdd-tag--letter"><?php echo esc_html( $tbtdd_entry['letter'] ); ?></span><?php echo esc_html( $tbtdd_entry['word'] ); ?></button>
 		<?php endforeach; ?>
 	</div>
 

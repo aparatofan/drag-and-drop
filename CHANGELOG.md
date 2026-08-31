@@ -2,6 +2,51 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.1.0
+
+Every gap carries a number and every word a letter, so a gap or a word can be
+named out loud during a lesson. Always on: nothing is stored, nothing is
+configurable, and the generator is untouched. The version bump is also the
+asset cache bust.
+
+### Style Book extension
+
+The Style Book reserves `#660000` (`--tbt-le`) for Learn English domain
+identity. Mariusz has extended it to learning-content markers, which is what
+these labels are, and this release is the first use of that extension.
+
+**For Mariusz:** add a line to Style Book §2 recording it, so the next tool
+inherits the rule instead of guessing. The Style Book document is deliberately
+not edited from this repo.
+
+### Added
+
+- **A number on every gap.** `Renderer::reading_html()` prints the reading-order
+  number in a `.tbtdd-tag--number` badge and wraps the badge and its slot in a
+  `.tbtdd-gap`, so the pair never breaks apart across a line. The badge is
+  `aria-hidden`: the slot's own `aria-label` already announces "Gap 3, empty" or
+  what the gap now contains. The wrapper takes over the `0 4px` margin the slot
+  used to carry.
+- **A letter on every word.** `Renderer::render()` reads the letters off the
+  shuffled bank — A, B, C … — and the token prints its own in a
+  `.tbtdd-tag--letter` badge beside the word, as a flex child rather than an
+  overlay so a short badge and a short word cannot collide. The letter comes
+  from the shuffle and nothing else, so it can never hint at the gap its word
+  belongs to. It belongs to the word, not the position: it travels with the
+  token into a slot and back, and only a redo reshuffle reassigns it.
+- Both labels render in compact (in-lesson) mode too — a gap is named the same
+  way on its own page and inside a lesson.
+
+### Changed
+
+- **`returnToBank()` inserts, it no longer appends.** A returned word goes back
+  at its letter's position, so the bank always reads A, B, C … with holes where
+  words are in use, instead of scattering as soon as one word came back.
+- **Redo relabels.** `redo()` already reshuffled the bank in the DOM; it now
+  rewrites each token's `data-tbtdd-letter` and badge text from its new
+  position, so a fresh attempt starts from A again. That is the only place a
+  letter changes, and every slot is empty when it runs.
+
 ## 2.0.1
 
 Corrections after the first live review. No structural change and no new

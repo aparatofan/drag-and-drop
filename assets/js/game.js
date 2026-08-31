@@ -105,10 +105,25 @@
 			}
 		}
 
+		/**
+		 * Back into the bank at its own letter's position rather than at the
+		 * end: the bank has to keep reading A, B, C … with holes where words
+		 * are in use, or the letters scatter as soon as one word comes back.
+		 */
 		function returnToBank(token, silent) {
 			var slot = token.parentElement;
+			var letter = token.getAttribute('data-tbtdd-letter') || '';
+			var siblings = Array.prototype.slice.call(bank.querySelectorAll('.tbtdd-token'));
+			var next = null;
 
-			bank.appendChild(token);
+			for (var i = 0; i < siblings.length; i++) {
+				if ((siblings[i].getAttribute('data-tbtdd-letter') || '') > letter) {
+					next = siblings[i];
+					break;
+				}
+			}
+
+			bank.insertBefore(token, next); // insertBefore(node, null) appends.
 			token.classList.remove('is-correct', 'is-wrong', 'is-picked');
 
 			if (slot && slot.classList.contains('tbtdd-slot')) {
@@ -334,13 +349,29 @@
 			announce(t('shownAll'));
 		}
 
+		/**
+		 * A redo reshuffles the bank, so the letters follow it and a fresh
+		 * attempt reads A, B, C … again. This is the only place a letter
+		 * changes, and every slot is empty when it runs.
+		 */
+		function relabel(token, index) {
+			var letter = String.fromCharCode(65 + (index % 26));
+			var tag = token.querySelector('.tbtdd-tag--letter');
+
+			token.setAttribute('data-tbtdd-letter', letter);
+			if (tag) {
+				tag.textContent = letter;
+			}
+		}
+
 		function redo() {
 			clearPicked();
 			clearMarks();
 			emptyAllSlots();
 
-			shuffle(Array.prototype.slice.call(bank.querySelectorAll('.tbtdd-token'))).forEach(function (token) {
+			shuffle(Array.prototype.slice.call(bank.querySelectorAll('.tbtdd-token'))).forEach(function (token, index) {
 				bank.appendChild(token);
+				relabel(token, index);
 			});
 
 			if (scoreBox) {
