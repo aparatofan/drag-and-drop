@@ -9,7 +9,7 @@ No AI generation.
 
 - **Main file:** `drag-drop-exercises.php` (never rename it — see below)
 - **Server folder:** `/drag-drop-exercises/`
-- **Version:** 2.2.0 · **Requires:** WordPress 6.4, PHP 8.0
+- **Version:** 2.2.1 · **Requires:** WordPress 6.4, PHP 8.0
 
 ## Shortcodes
 
