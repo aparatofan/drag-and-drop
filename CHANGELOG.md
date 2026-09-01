@@ -2,6 +2,29 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.2.1
+
+The gap and word labels turn blue, and the gap number moves onto the corner of
+its slot. CSS only — no markup, no behaviour, no stored data changes.
+
+### Changed
+
+- **The labels are blue, not maroon.** `.tbtdd-tag` now paints
+  `--tbt-selected-bg` behind `--tbt-blue` instead of white on `--tbt-le`. The
+  numbers and letters are a quiet reference marker for naming a gap out loud,
+  not a domain flag, so they no longer borrow Learn English's `#660000`.
+  Nothing in the plugin points at `--tbt-le` any more, and the hard-coded
+  `#FFFFFF` on the badge goes with it. The 2.1.0 note asking for a Style Book
+  §2 amendment has been removed from this changelog: the extension it recorded
+  no longer happens.
+- **The gap number sits in the slot's top-left corner.** `.tbtdd-gap` becomes
+  the positioning context and drops its `8px` gap, so the badge overlaps the
+  slot instead of taking room on the line — a sentence with gaps in it now
+  reads at closer to its natural width. A 3px `--tbt-surface` ring separates
+  the badge from the slot's border, and from the green or red border a checked
+  slot takes on. The letter on a word token is deliberately left inline: a
+  floating badge on a draggable token clips while dragging.
+
 ## 2.2.0
 
 Optional extra words in the bank, and the "Create another exercise" button
@@ -82,16 +105,6 @@ Every gap carries a number and every word a letter, so a gap or a word can be
 named out loud during a lesson. Always on: nothing is stored, nothing is
 configurable, and the generator is untouched. The version bump is also the
 asset cache bust.
-
-### Style Book extension
-
-The Style Book reserves `#660000` (`--tbt-le`) for Learn English domain
-identity. Mariusz has extended it to learning-content markers, which is what
-these labels are, and this release is the first use of that extension.
-
-**For Mariusz:** add a line to Style Book §2 recording it, so the next tool
-inherits the rule instead of guessing. The Style Book document is deliberately
-not edited from this repo.
 
 ### Added
 

@@ -247,7 +247,9 @@
 /* ---------- Labels ----------
    A letter on every word and a number on every gap, so a gap can be named out
    loud during a lesson. The letter is a flex child of the token rather than an
-   overlay: over the word, a short badge and a short word collide. */
+   overlay: over the word, a short badge and a short word collide.
+
+   Blue instead of maroon: a quiet reference marker, not a domain flag. */
 .tbtdd-tag {
 	display: inline-flex;
 	align-items: center;
@@ -257,8 +259,8 @@
 	height: 22px;
 	padding: 0 6px;
 	border-radius: var(--tbt-radius-pill);
-	background: var(--tbt-le);
-	color: #FFFFFF;
+	background: var(--tbt-selected-bg);
+	color: var(--tbt-blue);
 	font-family: var(--tbt-font-ui);
 	font-size: 12px;
 	font-weight: 700;
@@ -285,13 +287,28 @@
 
 /* ---------- Gap: the number and its slot ----------
    One inline-flex wrapper so the badge and the slot never break apart across a
-   line, and so the pair moves as one unit within a sentence. */
+   line, and so the pair moves as one unit within a sentence.
+
+   The number sits in the slot's top-left corner, so the wrapper's gap goes
+   with it — the badge no longer occupies space in the line. The letter on a
+   word token stays inline: a floating badge would clip while dragging. */
 .tbtdd-gap {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
+	gap: 0;
 	margin: 0 4px;
 	vertical-align: middle;
+}
+
+.tbtdd-tag--number {
+	position: absolute;
+	top: -11px;
+	left: -9px;
+	z-index: 2;
+	/* A ring in the panel colour separates the badge from the slot border it
+	   overlaps, and from a green or red border after checking. */
+	box-shadow: 0 0 0 3px var(--tbt-surface);
 }
 
 /* ---------- Slot ---------- */
