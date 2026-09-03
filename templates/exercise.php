@@ -84,6 +84,16 @@ $tbtdd_show_hero = empty( $args['compact'] ) && ( ! empty( $args['show_title'] )
 		<?php endforeach; ?>
 	</div>
 
+	<?php
+	/*
+	 * Not part of the teacher's instructions, which are stored per exercise:
+	 * this describes how the player works, so it is the plugin's line to
+	 * write and it appears on every exercise. Desktop wording on purpose —
+	 * the keyboard route exists for a touchpad, not for a phone.
+	 */
+	?>
+	<p class="tbtdd-hint"><?php esc_html_e( 'You can also press Tab to move between the gaps, then type the letter shown on a word to place it.', 'tbt-drag-drop' ); ?></p>
+
 	<div class="tbtdd-reading" data-tbtdd-reading><?php
 		echo $reading_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built and escaped run by run in Renderer::reading_html().
 	?></div>

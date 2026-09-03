@@ -148,11 +148,23 @@
 				returnToBank(existing, true);
 			}
 
+			// The word may be arriving from another gap rather than from the
+			// bank — dragged out of it, or pulled out by a letter typed into
+			// this one. That gap is losing it, so it has to stop looking and
+			// reading as though it were still filled.
+			var source = token.parentElement;
+
 			slot.appendChild(token);
 			slot.classList.add('is-filled');
 			slot.classList.remove('is-correct', 'is-wrong');
 			token.classList.remove('is-picked', 'is-correct', 'is-wrong');
 			describeSlot(slot);
+
+			if (source && source !== slot && source.classList.contains('tbtdd-slot')) {
+				source.classList.remove('is-filled', 'is-correct', 'is-wrong');
+				describeSlot(source);
+			}
+
 			clearPicked();
 			announce(sprintf(t('placed'), [token.dataset.tbtddToken]));
 		}
@@ -189,6 +201,111 @@
 			if (token) {
 				returnToBank(token);
 			}
+		}
+
+		/**
+		 * The token a letter key names, or null when it names none.
+		 *
+		 * A letter reaches a token only while it names exactly one. Badges are
+		 * dealt chr(65 + index % 26), so a 27th word would repeat A and one
+		 * keystroke would name two words; both then stay drag-only rather than
+		 * risk dropping the wrong one. That caps keyboard entry at 26 words,
+		 * and no AA/AB double-letter badge is introduced to lift it. A bank
+		 * holds at most MAX_ITEMS gaps plus MAX_DISTRACTORS extra words —
+		 * fourteen — so this is a guard against a future cap change, not a
+		 * limit any exercise meets today.
+		 *
+		 * @param {string} letter Upper-case A–Z.
+		 * @return {Element|null}
+		 */
+		function tokenByLetter(letter) {
+			var matches = Array.prototype.filter.call(
+				root.querySelectorAll('.tbtdd-token'),
+				function (candidate) {
+					return (candidate.getAttribute('data-tbtdd-letter') || '') === letter;
+				}
+			);
+
+			return 1 === matches.length ? matches[0] : null;
+		}
+
+		/**
+		 * A nudge for a key that names no word.
+		 *
+		 * Deliberately colourless: red is the verdict on an answer, and a key
+		 * that names nothing is not an answer. Removing the class and reading
+		 * a layout property before re-adding it restarts the animation when
+		 * the same gap is mistyped twice running.
+		 */
+		function shake(slot) {
+			slot.classList.remove('is-shaking');
+			void slot.offsetWidth;
+			slot.classList.add('is-shaking');
+		}
+
+		/**
+		 * Move focus to the next gap still wanting a word: forward from the
+		 * one just filled, then wrapping to the lowest-numbered empty gap.
+		 *
+		 * The wrap is what makes a move work. Typing a letter already sitting
+		 * in another gap empties that gap, and it is usually earlier in the
+		 * reading order than the one just filled. With every gap full the loop
+		 * finds nothing and focus stays put.
+		 */
+		function focusNextEmpty(from) {
+			var start = slots.indexOf(from);
+
+			for (var step = 1; step <= slots.length; step++) {
+				var candidate = slots[(start + step) % slots.length];
+
+				if (!candidate.querySelector('.tbtdd-token')) {
+					candidate.focus();
+					return;
+				}
+			}
+		}
+
+		/**
+		 * A letter typed into a focused gap.
+		 *
+		 * Every branch runs through place() and returnToBank(), the same two
+		 * functions the pointer uses, so a typed word and a dragged word leave
+		 * the page in the same state and Check cannot tell them apart. place()
+		 * already returns a displaced word to the bank and empties the gap a
+		 * word is moved out of.
+		 */
+		function typeLetter(slot, letter) {
+			var token = tokenByLetter(letter);
+
+			if (!token) {
+				shake(slot);
+				return;
+			}
+
+			// Already in this gap: nothing to move, nothing to announce, and
+			// no advance — the student has not filled anything.
+			if (token.parentElement === slot) {
+				return;
+			}
+
+			place(slot, token);
+			focusNextEmpty(slot);
+		}
+
+		/**
+		 * Backspace or Delete on a focused gap: the word goes back to the bank
+		 * and the gap keeps the focus, so the next letter can correct it.
+		 */
+		function clearSlot(slot) {
+			var token = slot.querySelector('.tbtdd-token');
+			if (!token) {
+				return;
+			}
+
+			returnToBank(token);
+			// The word may have been holding the focus itself; moving it out
+			// of the gap would otherwise drop focus to the document.
+			slot.focus();
 		}
 
 		tokens.forEach(function (token) {
@@ -249,7 +366,36 @@
 				if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
 					event.preventDefault();
 					activateSlot(slot);
+					return;
 				}
+
+				// Ctrl+A, Cmd+R, Alt+Left and the rest belong to the browser.
+				// Shift is not among them: it is how a capital letter is typed.
+				if (event.ctrlKey || event.metaKey || event.altKey) {
+					return;
+				}
+
+				if ('Backspace' === event.key || 'Delete' === event.key) {
+					// Backspace still means "back" in some browsers when
+					// nothing on the page is editable, so it is stopped
+					// whether or not this gap had a word to clear.
+					event.preventDefault();
+					clearSlot(slot);
+					return;
+				}
+
+				// One A–Z letter and nothing else: Tab and Shift+Tab have to
+				// keep moving the focus, and every other key is left alone.
+				if (!/^[a-zA-Z]$/.test(event.key)) {
+					return;
+				}
+
+				event.preventDefault();
+				typeLetter(slot, event.key.toUpperCase());
+			});
+
+			slot.addEventListener('animationend', function () {
+				slot.classList.remove('is-shaking');
 			});
 		});
 

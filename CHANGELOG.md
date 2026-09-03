@@ -2,6 +2,64 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.3.0
+
+Keyboard gap fill: a student can complete an exercise without the pointer.
+Player only — the generator and the library screens are untouched.
+
+### Added
+
+- **Type a letter into a gap.** Tab to a gap and press the letter printed on a
+  word's badge, and that word drops into the gap. The lettered word badges and
+  numbered gap badges from 2.1.0 already showed the mapping; this release makes
+  the letters do something. It exists because a touchpad drag is slow and
+  error-prone for some students.
+  - **Desktop and touchpad only. This does nothing for mobile.** A focusable
+    gap raises no on-screen keyboard, so a phone or tablet is no better off
+    than before. Select-then-place for touch remains a separate, future job.
+    Nothing here adds `contenteditable`, an `<input>`, or any other element
+    that would summon a soft keyboard.
+  - Typing over a filled gap sends the word that was there back to the bank.
+    Typing a letter that is sitting in another gap moves it, and the gap it
+    came from empties. Typing the letter already in the gap does nothing.
+  - `Backspace` and `Delete` return a gap's word to the bank and keep the
+    focus on the gap, so a mistype is fixed without reaching for the mouse.
+    Both stop the browser using Backspace to navigate back.
+  - After a fill the focus moves to the next empty gap and wraps round to the
+    lowest-numbered one, so an exercise is completed with one Tab and then
+    letters. Focus never lands on a gap that is already filled.
+  - A letter naming no word nudges the gap for 150ms. Movement only, never
+    colour: green and red are the verdict on an answer, and a key that names
+    nothing is not an answer. The nudge is dropped under
+    `prefers-reduced-motion`, where an unrecognised key simply does nothing.
+  - `Ctrl`, `Cmd` and `Alt` combinations are left to the browser, so Ctrl+A
+    and Cmd+R behave as they always did. `Shift` is not, since that is how a
+    capital letter is typed. `Tab` and `Shift+Tab` are never intercepted.
+  - Keyboard entry reaches a word only while its letter names exactly one.
+    Badges are dealt `chr(65 + index % 26)`, so a bank past 26 words would
+    repeat a letter; those words stay drag-only rather than risk placing the
+    wrong one. No AA/AB double-letter badges. A bank holds at most seven gap
+    items plus seven extra words, so no exercise reaches that limit.
+  - Every path runs through the same `place()` and `returnToBank()` the
+    pointer uses, so Check reads a typed word exactly as it reads a dragged
+    one, and drag-and-drop is unchanged.
+- **A line under the word bank** telling students the keyboard route exists.
+  It is the plugin's own line, not part of the teacher's per-exercise
+  instructions, so it appears on every exercise without touching stored data.
+
+### Fixed
+
+- **A word dragged straight from one gap to another left the first gap looking
+  and reading as though it still held it** — the gap kept `is-filled`, so it
+  stayed solid-bordered and white, and its `aria-label` went on naming a word
+  that had moved. `place()` now clears the gap a word is taken from. Reachable
+  by dragging since 2.0.0; found while building the keyboard move.
+- **A focused gap lost its blue border once answers had been checked.** The
+  slot's `:focus-visible` rule sat above `.is-correct` / `.is-wrong` at equal
+  specificity, so the verdict colour won and a keyboard user was left with
+  only the pale ring over a green or red fill. The focus rule now comes last
+  among the slot rules.
+
 ## 2.2.1
 
 The gap and word labels turn blue, and the gap number moves onto the corner of
