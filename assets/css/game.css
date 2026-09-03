@@ -330,12 +330,6 @@
 	transition: border-color .16s var(--tbt-ease), background-color .16s var(--tbt-ease), box-shadow .16s var(--tbt-ease);
 }
 
-.tbtdd-slot:focus-visible {
-	border-color: var(--tbt-blue);
-	box-shadow: var(--tbt-focus-ring);
-	outline: none;
-}
-
 .tbtdd-slot.is-over {
 	border-style: solid;
 	border-color: var(--tbt-blue);
@@ -358,6 +352,16 @@
 	border-style: solid;
 	border-color: var(--tbt-error);
 	background: var(--tbt-error-bg);
+}
+
+/* Last of the slot rules on purpose. A checked slot sets its own border
+   colour at the same specificity, so an earlier focus rule would lose the
+   blue border and leave the keyboard user with only the ring over green or
+   red. */
+.tbtdd-slot:focus-visible {
+	border-color: var(--tbt-blue);
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
 }
 
 /* The slot keeps the frame; a token inside it gives up its own, or the two
