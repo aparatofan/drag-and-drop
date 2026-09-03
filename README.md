@@ -4,12 +4,17 @@ A WordPress plugin for [The Blue Tree](https://thebluetree.pl). Teachers build
 gap-fill drag-and-drop exercises, publish them at their own URL, and embed them
 in lesson pages with a shortcode.
 
-Desktop only, by decision: HTML5 drag plus click-to-place, no touch fallback.
-No AI generation.
+Desktop only, by decision: HTML5 drag, click-to-place, and keyboard entry —
+no touch fallback. No AI generation.
+
+A student can also complete an exercise without the pointer: Tab to a gap and
+type the letter printed on a word to place it, Backspace to clear it. This is
+for the students who find a touchpad drag slow and error-prone; it does
+nothing for phones or tablets, where a focusable gap raises no keyboard.
 
 - **Main file:** `drag-drop-exercises.php` (never rename it — see below)
 - **Server folder:** `/drag-drop-exercises/`
-- **Version:** 2.2.1 · **Requires:** WordPress 6.4, PHP 8.0
+- **Version:** 2.3.0 · **Requires:** WordPress 6.4, PHP 8.0
 
 ## Shortcodes
 

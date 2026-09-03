@@ -183,6 +183,15 @@
 	margin-top: 0;
 }
 
+/* How the player works, under the bank it describes. Quiet on purpose: it is
+   a standing note, not an instruction for this particular exercise. */
+.tbtdd-hint {
+	margin: 12px 0 0;
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 14px;
+}
+
 /* ---------- Token ----------
    A rectangle with the control radius, not the legacy 999px pill: a token is a
    piece of the text on its way into a sentence, and it has to read like the
