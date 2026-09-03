@@ -364,6 +364,28 @@
 	outline: none;
 }
 
+/* A letter key that names no word in the bank. Movement only, no colour:
+   green and red are the verdict on an answer, and a key that names nothing
+   is not an answer to mark. */
+@keyframes tbtdd-shake {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+
+	25% {
+		transform: translateX(-4px);
+	}
+
+	75% {
+		transform: translateX(4px);
+	}
+}
+
+.tbtdd-slot.is-shaking {
+	animation: tbtdd-shake .15s var(--tbt-ease);
+}
+
 /* The slot keeps the frame; a token inside it gives up its own, or the two
    borders sit one inside the other. A token in the bank is unchanged. */
 .tbtdd-slot .tbtdd-token {
@@ -502,5 +524,11 @@
 	.tbtdd-button--cta:hover,
 	.tbtdd-button--primary:hover {
 		transform: none;
+	}
+
+	/* The mistyped-letter nudge is motion too. Nothing else marks it, so an
+	   unrecognised key simply does nothing here. */
+	.tbtdd-slot.is-shaking {
+		animation: none;
 	}
 }
