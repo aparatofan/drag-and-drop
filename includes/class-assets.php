@@ -250,7 +250,7 @@ final class Assets {
 				/* translators: 1: gaps chosen, 2: maximum gaps. */
 				'gapCount'         => __( '%1$d of %2$d gaps', 'tbt-drag-drop' ),
 				/* translators: %d: maximum gaps. */
-				'gapLimit'         => __( 'Seven gaps is the maximum for one exercise.', 'tbt-drag-drop' ),
+				'gapLimit'         => __( '%d gaps is the maximum for one exercise.', 'tbt-drag-drop' ),
 				'gapOverlap'       => __( 'That selection overlaps a gap you already made.', 'tbt-drag-drop' ),
 				/* translators: %s: the duplicated gap text. */
 				'gapDuplicate'     => __( '“%s” is already a gap. Two identical gaps cannot be told apart when checking answers.', 'tbt-drag-drop' ),

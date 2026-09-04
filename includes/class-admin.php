@@ -86,7 +86,11 @@ final class Admin {
 				'maxItems' => Exercise_Validator::MAX_ITEMS,
 				'strings'  => array(
 					'duplicate' => __( 'You cannot use the same item twice.', 'tbt-drag-drop' ),
-					'limit'     => __( 'You can only add up to 7 items.', 'tbt-drag-drop' ),
+					'limit'     => sprintf(
+						/* translators: %d: maximum number of gap items. */
+						__( 'You can only add up to %d items.', 'tbt-drag-drop' ),
+						(int) Exercise_Validator::MAX_ITEMS
+					),
 					'min'       => __( 'Add at least 1 gap item.', 'tbt-drag-drop' ),
 					'missing'   => __( 'Each item must exist in the text exactly as written.', 'tbt-drag-drop' ),
 					'remove'    => __( 'Remove', 'tbt-drag-drop' ),
@@ -142,7 +146,17 @@ final class Admin {
 
 			<hr/>
 
-			<p><strong><?php esc_html_e( 'Gap items (1 to 7)', 'tbt-drag-drop' ); ?></strong></p>
+			<p>
+				<strong>
+					<?php
+					printf(
+						/* translators: %d: maximum number of gap items. */
+						esc_html__( 'Gap items (1 to %d)', 'tbt-drag-drop' ),
+						(int) Exercise_Validator::MAX_ITEMS
+					);
+					?>
+				</strong>
+			</p>
 			<p class="description"><?php esc_html_e( 'Each selected word/expression must appear in the text. Duplicate items are not allowed.', 'tbt-drag-drop' ); ?></p>
 
 			<div id="dd-gap-items">

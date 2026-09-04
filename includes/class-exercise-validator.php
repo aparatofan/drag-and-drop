@@ -19,18 +19,19 @@ final class Exercise_Validator {
 	/**
 	 * Gap items per exercise.
 	 *
-	 * Seven is a reading limit rather than a storage one: past it the token
-	 * bank stops being scannable at a glance and the reading panel is more gap
-	 * than text.
+	 * Fifteen is a reading limit rather than a storage one, chosen so a long
+	 * exercise text can be gapped throughout instead of only sampled. The bank
+	 * stays scannable because it wraps: more gaps make its rows deeper, never
+	 * wider.
 	 */
-	public const MAX_ITEMS = 7;
+	public const MAX_ITEMS = 15;
 
 	/**
 	 * Extra bank words per exercise.
 	 *
-	 * The same reading limit as the gaps, applied to the other half of the
-	 * bank: seven gaps plus seven extras is already a long row of tokens to
-	 * scan before choosing one.
+	 * The same reading limit applied to the other half of the bank, and held at
+	 * seven while the gaps rose: fifteen gaps plus seven extras is already a
+	 * long row of tokens to scan before choosing one.
 	 */
 	public const MAX_DISTRACTORS = 7;
 

@@ -73,7 +73,7 @@ Five post meta keys on the `dd_exercise` post type. All writes go through
 | Key | Type | Notes |
 |---|---|---|
 | `_dd_gap_text` | `string` | The exercise text. Unchanged since 1.0.0. |
-| `_dd_gap_items` | `string[]` | Gap texts in reading order, max 7, no duplicates (case-insensitive). Unchanged since 1.0.0. |
+| `_dd_gap_items` | `string[]` | Gap texts in reading order, max 15, no duplicates (case-insensitive). The key is unchanged since 1.0.0; the cap rose from 7 in 2.4.0. |
 | `_dd_gap_offsets` | `int[]` | Byte offset in `_dd_gap_text` where each gap begins, index-aligned with `_dd_gap_items`. Written by the front end only. |
 | `_dd_gap_instructions` | `string` | Optional player support line; falls back to a default when empty. |
 | `_dd_gap_distractors` | `string[]` | Optional extra bank words, max 7, that fill no gap. Not in the text, and never equal to a gap item. |

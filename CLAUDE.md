@@ -29,7 +29,7 @@ Keep this file concise. It is loaded at the start of every Claude Code session.
 
 ## Behavior to preserve
 
-- An exercise consists of source text plus 1–7 gap items, with no duplicates (case-insensitive), and optionally up to 7 extra bank words that fill no gap.
+- An exercise consists of source text plus 1–15 gap items, with no duplicates (case-insensitive), and optionally up to 7 extra bank words that fill no gap.
 - **The plugin is desktop-only by decision.** HTML5 drag plus click-to-place. Do not add touch event handling.
 - Saved exercise content is WordPress-managed data; do not invent migrations or alter stored formats unless the task requires it. `dd_exercise`, `[dd_exercise]`, `_dd_gap_text` and `_dd_gap_items` are stored data and keep their names.
 - Offsets are an optimisation of fidelity, never a requirement: a missing or stale offset must fall back to first-occurrence matching, never fail the exercise.
