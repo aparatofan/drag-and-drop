@@ -2,6 +2,40 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.4.0
+
+An exercise can hold fifteen gaps instead of seven. One constant, plus the
+strings and comments that had the old number written into them by hand.
+
+### Changed
+
+- **`Exercise_Validator::MAX_ITEMS` is 15.** Seven was a reading limit, not a
+  storage one, and it held while an exercise was a short paragraph. A longer
+  text gapped throughout rather than only sampled needs more than seven, and
+  that is the case this raises the cap for. The bank stays scannable because
+  it wraps: `.tbtdd-bank` and `.tbtdd-chips` are both `flex-wrap: wrap` with
+  no cap, so more gaps make the rows deeper, never wider, and `.tbtdd-tag`
+  sets `min-width` with horizontal padding, so a two-digit gap number widens
+  its badge instead of clipping inside it.
+- **`MAX_DISTRACTORS` stays at 7.** Nothing about the extra words got harder
+  to scan, so the other half of the bank is unchanged. A full exercise is now
+  fifteen gaps plus seven extras: **22 bank tokens at most, still inside the
+  26-letter limit** 2.3.0's keyboard fill reasons from. Every badge letter
+  still names exactly one word, and no AA/AB double-letter scheme is needed.
+- **Stored exercises are untouched.** `_dd_gap_items` is the same meta key
+  holding the same shape, with a higher permitted length. Nothing migrates,
+  and an exercise written against the old cap reads, plays and re-saves
+  exactly as it did.
+- **The cap is no longer written out by hand.** The meta box heading, its
+  "up to N items" alert and the generator's cap notice now take
+  `Exercise_Validator::MAX_ITEMS` through `sprintf`, matching how the extra
+  words field already read `MAX_DISTRACTORS`; the `gapLimit` string became
+  `%d`, which the translators comment above it had promised all along. The
+  JS fallbacks in `tools.js` and `admin.js` moved to 15, and the comments in
+  `game.js` and `Renderer::bank_letter()` that reasoned from "fourteen" now
+  say twenty-two. `Exercise_Validator` remains the only place the cap is
+  enforced: both authoring paths and the REST route reach storage through it.
+
 ## 2.3.0
 
 Keyboard gap fill: a student can complete an exercise without the pointer.

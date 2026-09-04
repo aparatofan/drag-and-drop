@@ -189,9 +189,10 @@ final class Renderer {
 	/**
 	 * Bank letter for a position: A, B, C …
 	 *
-	 * A bank holds at most Exercise_Validator::MAX_ITEMS words, so one letter
-	 * always suffices; the wrap only keeps an oversized bank from running past
-	 * Z into punctuation.
+	 * A bank holds at most Exercise_Validator::MAX_ITEMS gaps plus
+	 * Exercise_Validator::MAX_DISTRACTORS extra words — twenty-two — so one
+	 * letter always suffices; the wrap only keeps an oversized bank from
+	 * running past Z into punctuation.
 	 *
 	 * @param int $index Zero-based position in the shuffled bank.
 	 * @return string

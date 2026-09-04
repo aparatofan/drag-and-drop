@@ -212,7 +212,7 @@
 		 * risk dropping the wrong one. That caps keyboard entry at 26 words,
 		 * and no AA/AB double-letter badge is introduced to lift it. A bank
 		 * holds at most MAX_ITEMS gaps plus MAX_DISTRACTORS extra words —
-		 * fourteen — so this is a guard against a future cap change, not a
+		 * twenty-two — so this is a guard against a future cap change, not a
 		 * limit any exercise meets today.
 		 *
 		 * @param {string} letter Upper-case A–Z.

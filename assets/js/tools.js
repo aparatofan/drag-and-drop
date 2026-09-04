@@ -10,7 +10,7 @@
 
 	var config = window.TBTDDTools || {};
 	var strings = config.strings || {};
-	var MAX_ITEMS = parseInt(config.maxItems, 10) || 7;
+	var MAX_ITEMS = parseInt(config.maxItems, 10) || 15;
 
 	function t(key) {
 		return typeof strings[key] === 'string' ? strings[key] : '';
@@ -391,7 +391,7 @@
 			}
 
 			if (gaps.length >= MAX_ITEMS) {
-				setNotice(t('gapLimit'));
+				setNotice(sprintf(t('gapLimit'), [MAX_ITEMS]));
 				renderChips();
 				return;
 			}

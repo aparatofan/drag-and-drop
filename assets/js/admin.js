@@ -114,7 +114,7 @@
 	}
 
 	addButton.addEventListener('click', function () {
-		if (rows().length >= (parseInt(config.maxItems, 10) || 7)) {
+		if (rows().length >= (parseInt(config.maxItems, 10) || 15)) {
 			window.alert(t('limit'));
 			return;
 		}
