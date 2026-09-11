@@ -1164,7 +1164,6 @@
 		var createButton = root.querySelector('[data-tbtdd-create]');
 		var libbar = root.querySelector('[data-tbtdd-libbar]');
 		var filter = root.querySelector('[data-tbtdd-libbar-filter]');
-		var rule = root.querySelector('[data-tbtdd-libbar-rule]');
 		var summary = root.querySelector('[data-tbtdd-summary]');
 		var summaryText = root.querySelector('[data-tbtdd-summary-text]');
 		/*
@@ -1188,8 +1187,8 @@
 		var searchTimer = null;
 
 		/**
-		 * An empty library has nothing to filter: the search goes and the rule
-		 * line beside the title takes the width back.
+		 * An empty library has nothing to filter: the search goes and the joining
+		 * line runs from the title to the button on its own, which is CSS.
 		 */
 		function setEmpty(flag) {
 			if (libbar) {
@@ -1197,9 +1196,6 @@
 			}
 			if (filter) {
 				filter.hidden = flag;
-			}
-			if (rule) {
-				rule.hidden = !flag;
 			}
 		}
 
