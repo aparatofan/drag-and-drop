@@ -304,6 +304,11 @@ final class Assets {
 				'nextPage'         => __( 'Next', 'tbt-drag-drop' ),
 				/* translators: 1: current page, 2: total pages. */
 				'pageOf'           => __( 'Page %1$d of %2$d', 'tbt-drag-drop' ),
+				'clearFilters'     => __( 'Clear filters', 'tbt-drag-drop' ),
+				/* translators: 1: exercises shown, 2: exercises in the library, 3: "exercise" or "exercises". */
+				'filterOf'         => __( '%1$d of %2$d %3$s', 'tbt-drag-drop' ),
+				'exerciseOne'      => __( 'exercise', 'tbt-drag-drop' ),
+				'exerciseMany'     => __( 'exercises', 'tbt-drag-drop' ),
 			),
 		);
 	}
