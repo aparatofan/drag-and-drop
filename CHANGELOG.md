@@ -2,6 +2,36 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.5.1
+
+The library header takes the Admin Bar layout: a thin line joins the title, the
+search and Create into one row, the search and the button hold fixed widths so
+the bar is identical on every TBT tool, and the button carries no shadow. The
+title reads in sentence case. Front-end layout only — no schema change, no new
+meta, no REST route change, no change to how the tool behaves.
+
+### Changed
+
+- **A joining line runs title ─ search ─ button.** Two decorative
+  `.tbtdd-libbar__line` spans replace the single `.tbtdd-section-rule` span, one
+  after the title and one after the search, each taking the width the fixed
+  items leave and drawn 1px in `--tbt-border` with a 10px gap either side of
+  every item. Drag & Drop has no dropdown, so the second line runs the whole way
+  from the search to the button. On an empty library the title's line runs to
+  the button on its own, which is now CSS rather than a JavaScript `hidden`
+  toggle.
+- **Fixed widths, so the tools line up.** The search is 300px and the title zone
+  is at least 234px, so the search always starts 244px in, level with Students
+  and Matching Game. The Create button is a fixed 250 × 53px and loses its
+  shadow at rest and on hover; the keyboard focus ring stays. The label is
+  unchanged.
+- **The title reads in sentence case.** Divi uppercases headings site-wide and
+  the library title is an `h2`, so `.tbtdd-section-title` now sets
+  `text-transform: none` — the same fix Matching Game 0.8.2 made.
+- **The row folds at 1100px rather than 900px.** Below it the lines step aside,
+  the title and Create share the first line and the search takes a full second
+  line, as before.
+
 ## 2.5.0
 
 The library header is one row instead of three stacked blocks: the title, the

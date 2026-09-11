@@ -69,6 +69,7 @@ For interaction/layout changes, state what still requires a live WordPress/Divi 
 
 ## Git and deployment
 
+- **Never merge a PR and never push to `main`.** A merge to `main` deploys to the live site; that is Mariusz's decision. Stop at an open PR and report.
 - `main` is the integration branch. Use a focused feature branch for changes.
 - Keep commits task-focused and descriptive.
 - A push to `main` triggers the FTPS deployment workflow.

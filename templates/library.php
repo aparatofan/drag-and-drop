@@ -36,7 +36,7 @@ $tbtdd_generator_url = isset( $generator_url ) ? (string) $generator_url : '';
 	<div class="tbtdd-libbar<?php echo $tbtdd_empty ? ' is-empty' : ''; ?>" data-tbtdd-libbar data-tbtdd-total="<?php echo esc_attr( $tbtdd_total ); ?>">
 		<div class="tbtdd-libbar__title">
 			<h2 class="tbtdd-section-title"><?php esc_html_e( 'Your exercises', 'tbt-drag-drop' ); ?></h2>
-			<span class="tbtdd-section-rule" data-tbtdd-libbar-rule aria-hidden="true"<?php echo $tbtdd_empty ? '' : ' hidden'; ?>></span>
+			<span class="tbtdd-libbar__line" aria-hidden="true"></span>
 		</div>
 
 		<div class="tbtdd-libbar__filter" role="search" data-tbtdd-libbar-filter<?php echo $tbtdd_empty ? ' hidden' : ''; ?>>
@@ -53,6 +53,8 @@ $tbtdd_generator_url = isset( $generator_url ) ? (string) $generator_url : '';
 					aria-label="<?php esc_attr_e( 'Clear search', 'tbt-drag-drop' ); ?>" hidden>&times;</button>
 			</div>
 		</div>
+
+		<span class="tbtdd-libbar__line tbtdd-libbar__line--end" aria-hidden="true"></span>
 
 		<?php
 		/*
