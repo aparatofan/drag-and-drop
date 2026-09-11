@@ -1112,11 +1112,61 @@
 	   The library
 	   ================================================================== */
 
+	var slashBound = false;
+
+	/**
+	 * `/` focuses the first visible library search on the page. Bound once per
+	 * page, not once per library.
+	 */
+	function bindSearchShortcut() {
+		if (slashBound) {
+			return;
+		}
+		slashBound = true;
+
+		document.addEventListener('keydown', function (event) {
+			if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) {
+				return;
+			}
+
+			// The create dialog owns the keyboard while it is open.
+			if (document.querySelector('.tbtdd-modal')) {
+				return;
+			}
+
+			var active = document.activeElement;
+			if (active && (active.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(active.tagName))) {
+				return;
+			}
+
+			// An empty library hides its search; there is nothing to focus.
+			var field = Array.prototype.filter.call(
+				document.querySelectorAll('[data-tbtdd-search]'),
+				function (node) {
+					return node.offsetParent !== null;
+				}
+			)[0];
+
+			if (!field) {
+				return;
+			}
+
+			event.preventDefault();
+			field.focus();
+		});
+	}
+
 	function initLibrary(root) {
 		var list = root.querySelector('[data-tbtdd-list]');
 		var pagination = root.querySelector('[data-tbtdd-pagination]');
 		var search = root.querySelector('[data-tbtdd-search]');
+		var searchClear = root.querySelector('[data-tbtdd-search-clear]');
 		var createButton = root.querySelector('[data-tbtdd-create]');
+		var libbar = root.querySelector('[data-tbtdd-libbar]');
+		var filter = root.querySelector('[data-tbtdd-libbar-filter]');
+		var rule = root.querySelector('[data-tbtdd-libbar-rule]');
+		var summary = root.querySelector('[data-tbtdd-summary]');
+		var summaryText = root.querySelector('[data-tbtdd-summary-text]');
 		/*
 		 * The generator URL travels on the markup rather than in config: the
 		 * bundle is localised once, before any shortcode has run, so a
@@ -1124,8 +1174,88 @@
 		 * fallback — it carries the recorded generator page and the filter.
 		 */
 		var generatorUrl = root.getAttribute('data-tbtdd-generator-url') || config.generatorUrl || '';
-		var state = { page: 1, search: '', totalPages: 1 };
+		var state = {
+			page: 1,
+			search: '',
+			totalPages: 1,
+			/*
+			 * The size of the library itself, not of the current result. The
+			 * server prints it on the markup so "X of Y" has a Y, and an empty
+			 * library keeps its search hidden, before the first request lands.
+			 */
+			allTotal: libbar ? parseInt(libbar.getAttribute('data-tbtdd-total'), 10) || 0 : 0
+		};
 		var searchTimer = null;
+
+		/**
+		 * An empty library has nothing to filter: the search goes and the rule
+		 * line beside the title takes the width back.
+		 */
+		function setEmpty(flag) {
+			if (libbar) {
+				libbar.classList.toggle('is-empty', flag);
+			}
+			if (filter) {
+				filter.hidden = flag;
+			}
+			if (rule) {
+				rule.hidden = !flag;
+			}
+		}
+
+		function renderSummary(shown) {
+			if (!summary) {
+				return;
+			}
+
+			// Nothing is filtered, so there is no "of" to report.
+			if (!state.search) {
+				summary.hidden = true;
+				return;
+			}
+
+			if (summaryText) {
+				summaryText.textContent = sprintf(t('filterOf'), [
+					shown,
+					state.allTotal,
+					1 === state.allTotal ? t('exerciseOne') : t('exerciseMany')
+				]);
+			}
+			summary.hidden = false;
+		}
+
+		/*
+		 * Rebuilt on every load because the hint holding it is replaced whole.
+		 * The delegated handler on root is what makes that cheap.
+		 */
+		function resetLink() {
+			var button = el('button', 'tbtdd-libbar__link', t('clearFilters'));
+			button.type = 'button';
+			button.setAttribute('data-tbtdd-reset', '');
+			return button;
+		}
+
+		function syncClear() {
+			if (searchClear && search) {
+				searchClear.hidden = '' === search.value;
+			}
+		}
+
+		/** The search step without the typing debounce in front of it. */
+		function runSearch() {
+			window.clearTimeout(searchTimer);
+			state.search = search ? search.value.trim() : '';
+			state.page = 1;
+			load();
+		}
+
+		function clearSearch() {
+			if (search) {
+				search.value = '';
+			}
+			syncClear();
+			runSearch();
+		}
 
 		function gapLabel(count) {
 			return count === 1 ? t('oneGapInExercise') : sprintf(t('gapsInExercise'), [count]);
@@ -1243,6 +1373,11 @@
 				duplicateButton.disabled = true;
 				request(config.restBase + '/' + exercise.id + '/duplicate', { method: 'POST' }).then(function () {
 					notify(root, t('duplicated'));
+					// Filtered, the response only counts matches, so the copy
+					// has to be added to the library total by hand.
+					if (state.search) {
+						state.allTotal += 1;
+					}
 					load();
 				}).catch(function (error) {
 					notify(root, messageFor(error), true);
@@ -1257,6 +1392,9 @@
 				deleteButton.disabled = true;
 				request(config.restBase + '/' + exercise.id, { method: 'DELETE' }).then(function () {
 					notify(root, t('deleted'));
+					if (state.search) {
+						state.allTotal = Math.max(0, state.allTotal - 1);
+					}
 					load();
 				}).catch(function (error) {
 					notify(root, messageFor(error), true);
@@ -1318,9 +1456,24 @@
 					return;
 				}
 
+				var total = typeof response.total === 'number' ? response.total : items.length;
+
+				// Unfiltered, the result is the library, so it is what the
+				// empty state and every later "of Y" are measured against.
+				if (!state.search) {
+					state.allTotal = total;
+					setEmpty(0 === state.allTotal);
+				}
+
+				renderSummary(total);
+
 				list.replaceChildren();
 				if (!items.length) {
-					list.appendChild(el('p', 'tbtdd-hint', state.search ? t('emptySearch') : t('empty')));
+					var hint = el('p', 'tbtdd-hint', state.search ? t('emptySearch') : t('empty'));
+					if (state.search) {
+						hint.appendChild(resetLink());
+					}
+					list.appendChild(hint);
 				} else {
 					items.forEach(function (exercise) {
 						list.appendChild(row(exercise));
@@ -1338,14 +1491,46 @@
 
 		if (search) {
 			search.addEventListener('input', function () {
+				// The clear button tracks the field, not the request behind it.
+				syncClear();
 				window.clearTimeout(searchTimer);
-				searchTimer = window.setTimeout(function () {
-					state.search = search.value.trim();
-					state.page = 1;
-					load();
-				}, 300);
+				searchTimer = window.setTimeout(runSearch, 300);
+			});
+
+			search.addEventListener('keydown', function (event) {
+				// An empty field has nothing to clear, so Escape stays with
+				// whatever is around the library.
+				if (event.key !== 'Escape' || '' === search.value) {
+					return;
+				}
+
+				event.preventDefault();
+				clearSearch();
 			});
 		}
+
+		if (searchClear) {
+			searchClear.addEventListener('click', function () {
+				clearSearch();
+				if (search) {
+					search.focus();
+				}
+			});
+		}
+
+		// Delegated: the summary's button is in the markup, the no-match hint's
+		// is rebuilt on every load.
+		root.addEventListener('click', function (event) {
+			var button = event.target && event.target.closest ? event.target.closest('[data-tbtdd-reset]') : null;
+			if (!button) {
+				return;
+			}
+
+			clearSearch();
+			if (search) {
+				search.focus();
+			}
+		});
 
 		if (createButton && generatorUrl) {
 			createButton.addEventListener('click', function () {
@@ -1353,6 +1538,7 @@
 			});
 		}
 
+		bindSearchShortcut();
 		load();
 	}
 

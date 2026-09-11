@@ -2,6 +2,56 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.5.0
+
+The library header is one row instead of three stacked blocks: the title, the
+search and Create sit on a single line, the same shape the other TBT tools
+use. Front-end layout and behaviour only — no schema change, no new meta, no
+REST route change.
+
+### Changed
+
+- **Title, search and Create share one line.** `.tbtdd-section-head` and
+  `.tbtdd-library__head` are gone, replaced by `.tbtdd-libbar`: the heading on
+  the left, the search taking the middle, the Create button closing the row.
+  Drag & Drop has nothing to filter by besides the title, so where the other
+  tools put a dropdown this one gives the space to the search field. The
+  geometry is Matching Game 0.8.0's, to the pixel, so two tool pages set side
+  by side line up.
+- **The search label is visually hidden and the placeholder does the work.**
+  `Search by exercise title` replaces the old `Exercise title` placeholder and
+  the visible `Search your exercises` label above it; the label itself stays in
+  the markup for screen readers. The search is still server-side through the
+  REST `search` param on a 300 ms debounce, and pagination is untouched.
+- **The field carries its own controls.** A magnifier sits inside the field, a
+  × button appears as soon as there is text to clear, `Escape` inside the
+  field clears it, and `/` anywhere outside a text field focuses the first
+  visible library search on the page. `/` is ignored while the create dialog is
+  open, so typing a slash into a title still types a slash.
+- **A summary line appears only while searching.** `3 of 14 exercises` followed
+  by a `Clear filters` button, which also appears inside the
+  "No exercises match that search" hint. Deleting or duplicating an exercise
+  while a search is running adjusts the library total, so the `of Y` half stays
+  honest without a second request.
+- **An empty library hides the search rather than offering it.** The shortcode
+  counts the teacher's own exercises before rendering and prints the number on
+  the markup, so a teacher with nothing saved gets the title, the rule line and
+  Create — and never a search bar that flashes in and disappears once the
+  first request lands. The count uses the same owner-and-status scope as
+  `Exercises_Controller::list_items()`.
+- **Create new exercise is the one uppercase pill in the plugin.** The button
+  is the shared library CTA, so it takes the pill radius, the wider padding and
+  the uppercase label that every TBT tool's library CTA has. Every other button
+  here — row actions, generator, pagination — keeps its sentence case and
+  12px corners deliberately: the CTA is meant to be the one thing on the row
+  that does not look like the rest.
+- **Colours still come from the shared tokens.** The toolbar reads
+  `--tbt-blue`, `--tbt-border`, `--tbt-input`, `--tbt-surface`,
+  `--tbt-selected-bg`, `--tbt-muted` and `--tbt-focus-ring`; it defines no
+  colour of its own, and `assets/vendor/tbt/tbt-tokens.css` is untouched. The
+  `.tbtdd-sr-only` helper is copied into `tools.css` because the tools bundle
+  never loads `game.css`, where it was defined.
+
 ## 2.4.0
 
 An exercise can hold fifteen gaps instead of seven. One constant, plus the
