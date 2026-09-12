@@ -2,6 +2,31 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.9.1
+
+2.9.0's release rule was correct and lost the cascade. It never reached the
+live site, so this is that same fix, landing.
+
+### Fixed
+
+- **The body half of the release now outranks Divi.** Divi's `misc.css`
+  declares `body { width: 100vw; overflow-x: hidden !important }`. The `html`
+  half of 2.9.0's rule applied; the `body` half was beaten by that
+  `!important`, so `body` stayed a scroll container and the bank went on
+  pinning to it. Both declarations now carry `!important` of their own.
+- Worth recording, because it explains the shape of the rule: `body`'s
+  `overflow-y` is not declared anywhere. `hidden` on one axis forces `visible`
+  on the other to compute as `auto`, and that derived `auto` was the scroll
+  container. Overriding x to `clip` is what frees y.
+
+### Known cost
+
+- A menu or modal locks scrolling with an inline `overflow: hidden`, and an
+  inline style loses to `!important`, so a scroll lock on the exercise page
+  will not hold. Only the x axis has to outrank Divi — dropping `!important`
+  from the y line alone keeps the fix and returns the lock, should the menu
+  behaviour matter more than the symmetry.
+
 ## 2.9.0
 
 The sticky bank from 2.8.0 was correct and never held on the live site. It was

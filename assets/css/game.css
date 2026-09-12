@@ -36,24 +36,32 @@ body.admin-bar {
 
 /* ---------- Shell ---------- */
 
-/* The page's theme leaves html and body at 'overflow: hidden auto'. Each of
-   those is a scroll container, and a sticky element pins to its nearest
-   scrolling ancestor — so the bank was pinning to body, which never scrolls
+/* The theme leaves html and body computing to 'overflow: hidden auto'. Each
+   of those is a scroll container, and a sticky element pins to its nearest
+   scrolling ancestor — so the bank was pinning to body, which never scrolls,
    because the viewport does. Sticky was working; it was anchored to the wrong
-   box. Releasing body on the y axis hands the bank back to the viewport.
+   box. Releasing body hands the bank back to the viewport.
 
-   overflow-x stays contained, but as 'clip' rather than 'hidden': clip stops
-   sideways overflow without creating a scroll container, which is the whole
-   distinction being relied on here. Nothing on this page overflows sideways
-   today, so it is a guard rather than a fix.
+   Divi's misc.css declares 'body { width: 100vw; overflow-x: hidden
+   !important }', and both halves of that matter here. The !important is what
+   this rule has to outrank, which is why it carries one of its own. And the
+   body's overflow-y is never declared anywhere: 'hidden' on one axis forces
+   'visible' on the other to compute as 'auto', so that derived 'auto' is the
+   scroll container. Overriding x to 'clip' is what actually frees y.
 
-   Scoped to the standalone exercise page by body class, and deliberately not
-   !important: a menu or modal that locks scrolling does it with an inline
-   style, which still wins over this. */
+   'clip' rather than 'hidden' is the load-bearing choice: it contains
+   sideways overflow — 100vw is wider than the content box wherever the
+   browser draws a classic scrollbar — without creating a scroll container.
+
+   Scoped to the standalone exercise page by body class. One known cost: a
+   menu or modal locks scrolling with an inline 'overflow: hidden', and an
+   inline style loses to !important, so a scroll lock on this page will not
+   hold. Removing !important from the y line alone keeps the fix and returns
+   the lock — x is the only axis that has to outrank Divi. */
 html:has(body.single-dd_exercise),
 body.single-dd_exercise {
-	overflow-x: clip;
-	overflow-y: visible;
+	overflow-x: clip !important;
+	overflow-y: visible !important;
 }
 
 .tbtdd-standalone {
