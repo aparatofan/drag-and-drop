@@ -2,6 +2,34 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.9.0
+
+The sticky bank from 2.8.0 was correct and never held on the live site. It was
+pinning to the wrong box.
+
+### Fixed
+
+- **The bank pins to the viewport again.** The theme leaves `html` and `body`
+  at `overflow: hidden auto`. Each of those is a scroll container, and a sticky
+  element pins to its nearest scrolling ancestor — so the bank was pinning to
+  `body`, which never scrolls, because the viewport does. `body` is now released
+  on the y axis for the standalone exercise page only. The x axis stays
+  contained as `clip` rather than `hidden`: `clip` stops sideways overflow
+  without creating a scroll container, which is the entire distinction being
+  relied on. Nothing on the page overflows sideways today, so that half is a
+  guard.
+- The release is scoped by `body.single-dd_exercise` and carries no
+  `!important`, so a menu or modal that locks scrolling — inline style or a
+  later stylesheet — still wins. `[dd_exercise]` embeds are untouched.
+
+### Changed
+
+- **The bank is its own surface.** Its background moves from `--tbt-surface`
+  to `--tbt-input`, at rest and pinned alike. A white bank over a white passage
+  card read as one sheet of paper rather than as the tray the words wait in.
+  Chips stay white; that contrast is the point. The letter badges sit on the
+  chips, not on the bank, so their definition is unchanged.
+
 ## 2.8.0
 
 The word bank now pins to the top of the viewport on a standalone exercise

@@ -36,6 +36,26 @@ body.admin-bar {
 
 /* ---------- Shell ---------- */
 
+/* The page's theme leaves html and body at 'overflow: hidden auto'. Each of
+   those is a scroll container, and a sticky element pins to its nearest
+   scrolling ancestor — so the bank was pinning to body, which never scrolls
+   because the viewport does. Sticky was working; it was anchored to the wrong
+   box. Releasing body on the y axis hands the bank back to the viewport.
+
+   overflow-x stays contained, but as 'clip' rather than 'hidden': clip stops
+   sideways overflow without creating a scroll container, which is the whole
+   distinction being relied on here. Nothing on this page overflows sideways
+   today, so it is a guard rather than a fix.
+
+   Scoped to the standalone exercise page by body class, and deliberately not
+   !important: a menu or modal that locks scrolling does it with an inline
+   style, which still wins over this. */
+html:has(body.single-dd_exercise),
+body.single-dd_exercise {
+	overflow-x: clip;
+	overflow-y: visible;
+}
+
 .tbtdd-standalone {
 	background: var(--tbt-canvas);
 }
@@ -195,7 +215,10 @@ body.admin-bar {
 	padding: 20px;
 	border: 1px solid var(--tbt-border);
 	border-radius: var(--tbt-radius-card);
-	background: var(--tbt-surface);
+	/* The pale input tint, not the surface white: against a white passage card
+	   a white bank read as the same sheet of paper rather than as the tray the
+	   words are waiting in. The chips stay white — that contrast is the point. */
+	background: var(--tbt-input);
 	box-shadow: var(--tbt-shadow);
 }
 
@@ -220,8 +243,10 @@ body.admin-bar {
 	   over a pinned bank. Far below the Divi header and the WP admin bar. */
 	z-index: 5;
 	/* Restated on purpose, and it must stay fully opaque: the passage scrolls
-	   underneath this card, and a translucent surface would show it through. */
-	background: var(--tbt-surface);
+	   underneath this card, and a translucent surface would show it through.
+	   One tint at rest and stuck alike — the bank does not change colour when
+	   it pins, it only gains an edge. */
+	background: var(--tbt-input);
 }
 
 /* Pinned. A raised edge and nothing else — no colour change, no size change,
