@@ -52,6 +52,68 @@
 		return list;
 	}
 
+	/* ---- Reporting to the teacher's live panel ----
+
+	   Optional in every direction. TBT Notes owns the activity routes, and the
+	   exercise must keep working when Notes is not there, so the whole surface is
+	   gated on a base URL the server only supplies when Notes is active.
+
+	   Module level, not per exercise, on purpose. A lesson page can carry several
+	   exercises, and a heartbeat each would be several identical requests every
+	   twenty seconds saying the same thing about the same student. One page, one
+	   pulse.
+
+	   The endpoint is read off the same module-level `config` that `t()` stakes
+	   every string on. If localisation order ever broke, the strings would break
+	   with it — one coherent failure rather than two half-working ones. */
+
+	var PRESENCE_EVERY = 20000;
+	var presenceTimer = null;
+
+	function postActivity(path, body) {
+		if (!config.activityBase || !config.activityNonce) {
+			return;
+		}
+
+		// Reporting is a side effect of doing the exercise, never a gate on it: a
+		// failed request is swallowed rather than shown. A student mid-lesson
+		// cannot act on "could not reach the progress panel".
+		fetch(config.activityBase + path, {
+			method: 'POST',
+			credentials: 'same-origin',
+			cache: 'no-store',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': config.activityNonce
+			},
+			body: JSON.stringify(body || {}),
+			// A learner who closes the tab on a finished board should still be
+			// recorded.
+			keepalive: true
+		}).catch(function () {});
+	}
+
+	/* The heartbeat says "still working" and writes no history — the server keeps
+	   it in a short-lived transient. It starts on the first token placed, not on
+	   page load: a lesson page that merely contains an exercise must not mark
+	   every student in the room as working the moment the page paints. */
+	function startPresence() {
+		if (presenceTimer || !config.activityBase) {
+			return;
+		}
+		postActivity('/presence', {});
+		presenceTimer = window.setInterval(function () {
+			postActivity('/presence', {});
+		}, PRESENCE_EVERY);
+	}
+
+	function stopPresence() {
+		if (presenceTimer) {
+			window.clearInterval(presenceTimer);
+			presenceTimer = null;
+		}
+	}
+
 	function initExercise(root) {
 		var settings = readConfig(root);
 		if (!settings || !settings.answers) {
@@ -73,6 +135,22 @@
 		}
 
 		var picked = null;
+
+		/* Reporting state, all three surviving redo() by design.
+
+		   assisted: Show correct has been used at least once this page load. It
+		   is never cleared — that is the whole mechanism, since redo() plus a
+		   second Check would otherwise turn a revealed board into a perfect
+		   score.
+
+		   completionSent: a once-per-page-load guard, so a student who redoes a
+		   perfect attempt does not tell the teacher they finished twice.
+
+		   startedAt: set on the first token placed, so an untouched exercise is
+		   not timed. */
+		var assisted = false;
+		var completionSent = false;
+		var startedAt = 0;
 
 		function announce(message) {
 			if (live && message) {
@@ -144,6 +222,12 @@
 				clearPicked();
 				return;
 			}
+
+			// Every route a word can take into a gap — dropped, clicked, or
+			// named by a typed letter — arrives here, so this is the one point
+			// that means "the student has started".
+			noteInteraction();
+
 			if (existing) {
 				returnToBank(existing, true);
 			}
@@ -454,6 +538,10 @@
 			}
 
 			announce(sprintf(t('checked'), [correct, slots.length]));
+
+			if (correct === slots.length) {
+				reportCompletion();
+			}
 		}
 
 		function emptyAllSlots() {
@@ -466,6 +554,10 @@
 		}
 
 		function showCorrect() {
+			// Never cleared, and deliberately not reset by redo(): revealing the
+			// answers ends this sitting's claim to a reported completion.
+			assisted = true;
+
 			clearPicked();
 			clearMarks();
 			emptyAllSlots();
@@ -533,6 +625,53 @@
 			}
 
 			announce(t('restarted'));
+		}
+
+		/* Called from the first token placed. Starts the clock and the heartbeat;
+		   both are no-ops on every later call. */
+		function noteInteraction() {
+			if (!startedAt) {
+				startedAt = Date.now();
+			}
+			startPresence();
+		}
+
+		function reportCompletion() {
+			if (completionSent || assisted) {
+				return;
+			}
+
+			var activity = settings.activity;
+			if (!activity || !activity.objectRef) {
+				return;
+			}
+
+			// The server's gap count and the DOM's must agree. They always
+			// should; if they ever do not, the board being scored is not the
+			// board that was saved, and a completion row from it would be a lie.
+			// The heartbeat is left running: the board is wrong, but the student
+			// is still working.
+			if (activity.gapCount && activity.gapCount !== slots.length) {
+				return;
+			}
+
+			completionSent = true;
+			stopPresence();
+
+			// Score is sent even though it is always n of n here. The column is
+			// nullable and shared, and a later change to what counts as finished
+			// should not have to revisit the payload.
+			postActivity('', {
+				tool: 'dragdrop',
+				object_ref: activity.objectRef,
+				object_title: activity.objectTitle,
+				post_id: activity.postId || 0,
+				score: slots.length,
+				score_max: slots.length,
+				duration_seconds: startedAt
+					? Math.max(0, Math.round((Date.now() - startedAt) / 1000))
+					: null
+			});
 		}
 
 		if (checkButton) {

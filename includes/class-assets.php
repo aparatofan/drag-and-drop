@@ -111,7 +111,38 @@ final class Assets {
 
 		if ( ! $this->game_localised ) {
 			$this->game_localised = true;
-			wp_localize_script( 'tbtdd-game', 'TBTDDGame', array( 'strings' => $this->game_strings() ) );
+
+			/*
+			 * The live-progress routes belong to TBT Notes, which is an optional
+			 * integration: checked by class, not by plugin file. With Notes
+			 * inactive these keys are absent, the player reports nothing, and the
+			 * exercise behaves exactly as it did up to and including 2.5.1.
+			 *
+			 * The nonce is scoped to the learner's own completion — the route
+			 * takes the user from the session and resolves their class
+			 * server-side — so the token on a learner's page cannot be turned
+			 * into a write about anyone else.
+			 *
+			 * The endpoint is page-level, so it is declared once, inside the
+			 * guard that already exists for 'strings'. wp_localize_script()
+			 * prepends to a handle's existing data rather than replacing it, and
+			 * enqueue_game() runs again for every exercise rendered, so without
+			 * the guard a three-exercise lesson would print three identical
+			 * declarations.
+			 */
+			$activity = array();
+			if ( is_user_logged_in() && class_exists( 'TBT_Notes_Activity_REST' ) && defined( 'TBT_NOTES_REST_NAMESPACE' ) ) {
+				$activity = array(
+					'activityBase'  => esc_url_raw( rest_url( TBT_NOTES_REST_NAMESPACE . '/activity' ) ),
+					'activityNonce' => wp_create_nonce( 'wp_rest' ),
+				);
+			}
+
+			wp_localize_script(
+				'tbtdd-game',
+				'TBTDDGame',
+				$activity + array( 'strings' => $this->game_strings() )
+			);
 		}
 
 		/*
