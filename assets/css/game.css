@@ -43,25 +43,27 @@ body.admin-bar {
    box. Releasing body hands the bank back to the viewport.
 
    Divi's misc.css declares 'body { width: 100vw; overflow-x: hidden
-   !important }', and both halves of that matter here. The !important is what
-   this rule has to outrank, which is why it carries one of its own. And the
-   body's overflow-y is never declared anywhere: 'hidden' on one axis forces
-   'visible' on the other to compute as 'auto', so that derived 'auto' is the
-   scroll container. Overriding x to 'clip' is what actually frees y.
+   !important }'. That is the only declaration standing in the way, so x is
+   the only axis here that carries an !important of its own. body's overflow-y
+   is never declared anywhere: 'hidden' on one axis forces 'visible' on the
+   other to compute as 'auto', and that derived 'auto' was the scroll
+   container. Overriding x to 'clip' is what frees y, so the y line needs
+   nothing to win.
 
-   'clip' rather than 'hidden' is the load-bearing choice: it contains
-   sideways overflow — 100vw is wider than the content box wherever the
-   browser draws a classic scrollbar — without creating a scroll container.
+   The asymmetry is deliberate, not an oversight. A menu or modal locks
+   scrolling with an inline 'overflow: hidden'; an inline style beats a plain
+   declaration but loses to !important, so leaving y plain keeps a scroll lock
+   working on this page. Do not "tidy" the two lines into matching.
 
-   Scoped to the standalone exercise page by body class. One known cost: a
-   menu or modal locks scrolling with an inline 'overflow: hidden', and an
-   inline style loses to !important, so a scroll lock on this page will not
-   hold. Removing !important from the y line alone keeps the fix and returns
-   the lock — x is the only axis that has to outrank Divi. */
+   'clip' rather than 'hidden' is load-bearing: it contains sideways overflow
+   — 100vw is wider than the content box wherever the browser draws a classic
+   scrollbar — without creating a scroll container.
+
+   Scoped to the standalone exercise page by body class. */
 html:has(body.single-dd_exercise),
 body.single-dd_exercise {
 	overflow-x: clip !important;
-	overflow-y: visible !important;
+	overflow-y: visible;
 }
 
 .tbtdd-standalone {

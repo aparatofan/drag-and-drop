@@ -14,18 +14,13 @@ live site, so this is that same fix, landing.
   half of 2.9.0's rule applied; the `body` half was beaten by that
   `!important`, so `body` stayed a scroll container and the bank went on
   pinning to it. Both declarations now carry `!important` of their own.
-- Worth recording, because it explains the shape of the rule: `body`'s
-  `overflow-y` is not declared anywhere. `hidden` on one axis forces `visible`
-  on the other to compute as `auto`, and that derived `auto` was the scroll
-  container. Overriding x to `clip` is what frees y.
-
-### Known cost
-
-- A menu or modal locks scrolling with an inline `overflow: hidden`, and an
-  inline style loses to `!important`, so a scroll lock on the exercise page
-  will not hold. Only the x axis has to outrank Divi — dropping `!important`
-  from the y line alone keeps the fix and returns the lock, should the menu
-  behaviour matter more than the symmetry.
+- **Only the x axis carries `!important`, and that asymmetry is deliberate.**
+  `body`'s `overflow-y` is not declared anywhere: `hidden` on one axis forces
+  `visible` on the other to compute as `auto`, and that derived `auto` was the
+  scroll container. Overriding x to `clip` is what frees y, so the y line has
+  nothing to outrank. Leaving it plain also leaves scroll locking intact — a
+  menu or modal locks with an inline `overflow: hidden`, which beats a plain
+  declaration but would have lost to `!important`.
 
 ## 2.9.0
 
