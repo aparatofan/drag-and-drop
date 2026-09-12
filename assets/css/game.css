@@ -14,6 +14,26 @@
  * Desktop only, by decision: HTML5 drag plus click-to-place, no touch fallback.
  */
 
+/* ---------- Sticky offsets ----------
+   Lengths, never colours: the tokens file owns every colour this plugin uses
+   and nothing here names one. These exist so the three things that can push
+   the pinned bank down the viewport stay separable and readable.
+
+   --tbtdd-header-offset is measured and written by game.js when the theme
+   actually carries a fixed or sticky header. It stays 0 otherwise, which is
+   also what a visitor with JavaScript off gets. */
+:root {
+	--tbtdd-sticky-offset: 12px;
+	--tbtdd-header-offset: 0px;
+	--tbtdd-admin-offset: 0px;
+}
+
+/* 32px is the only admin bar height that matters here. Below 783px WordPress
+   grows the bar to 46px, but the bank has stopped sticking well before that. */
+body.admin-bar {
+	--tbtdd-admin-offset: 32px;
+}
+
 /* ---------- Shell ---------- */
 
 .tbtdd-standalone {
@@ -181,6 +201,55 @@
 
 .tbtdd-exercise--compact .tbtdd-bank {
 	margin-top: 0;
+}
+
+/* ---------- Sticky bank ----------
+   Standalone player only. An embedded exercise sits inside a page builder's
+   container of unknown height and unknown overflow, where pinning the bank
+   buys nothing and can break outright.
+
+   Nothing about the resting card changes: same padding, same 16px card
+   radius, same border, same resting shadow. Full size is the point — a bank
+   that shrank on sticking would mean re-reading the words at every gap. */
+.tbtdd-standalone .tbtdd-bank {
+	position: sticky;
+	top: calc(var(--tbtdd-admin-offset) + var(--tbtdd-header-offset) + var(--tbtdd-sticky-offset));
+	/* Above .tbtdd-tag--number, which is 2 in the ROOT stacking context: its
+	   .tbtdd-gap wrapper is position: relative with z-index auto and so creates
+	   no stacking context of its own, and those badges would otherwise paint
+	   over a pinned bank. Far below the Divi header and the WP admin bar. */
+	z-index: 5;
+	/* Restated on purpose, and it must stay fully opaque: the passage scrolls
+	   underneath this card, and a translucent surface would show it through. */
+	background: var(--tbt-surface);
+}
+
+/* Pinned. A raised edge and nothing else — no colour change, no size change,
+   no motion. Without it the passage appears to slide into the card. */
+.tbtdd-standalone .tbtdd-bank.is-stuck {
+	box-shadow: var(--tbt-shadow-raised);
+}
+
+/* A bank deep enough to eat a third of the screen costs the passage more room
+   than the reach is worth, so the player measures it and hands back the class.
+   Specificity puts this above both rules below it. */
+.tbtdd-standalone .tbtdd-bank.is-too-tall {
+	position: static;
+}
+
+/* Below the breakpoint the tools already use. This is the half of that rule a
+   narrow window gets with no JavaScript at all, so it is not left to the class
+   above; the two thresholds are deliberately the same number. */
+@media (max-width: 1100px) {
+	.tbtdd-standalone .tbtdd-bank {
+		position: static;
+	}
+}
+
+/* The zero-height marker the player watches to know the bank has detached.
+   Presentational only, and it carries nothing to read. */
+.tbtdd-sentinel {
+	height: 0;
 }
 
 /* How the player works, under the bank it describes. Quiet on purpose: it is

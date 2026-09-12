@@ -2,6 +2,39 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.8.0
+
+The word bank now pins to the top of the viewport on a standalone exercise
+page, so a word is still reachable from a gap most of a long passage away. No
+stored data, no server behaviour and no markup beyond one empty marker div
+changed.
+
+### Added
+
+- **Sticky word bank, standalone player only.** The bank keeps its full size
+  while pinned — same padding, same 16px card radius, same chips, same rows.
+  A shrinking bank would mean re-reading the words at every gap, which is the
+  work the pinning was meant to save.
+- **A raised edge once it detaches.** An `IntersectionObserver` on a zero-height
+  sentinel adds `is-stuck`, which changes the shadow and nothing else. Without
+  the edge the passage appears to slide into the card. With no
+  `IntersectionObserver` the bank keeps its resting shadow and still pins.
+- **The theme's fixed header is measured, not assumed.** `game.js` writes
+  `--tbtdd-header-offset` from whatever fixed or sticky header the theme
+  actually renders, and leaves it at 0 when there is none. `body.admin-bar`
+  adds the WP admin bar's 32px in CSS.
+
+### Notes
+
+- Embedded exercises (`[dd_exercise]`, the compact player) are untouched: a
+  page builder's container has unknown height and unknown overflow, where
+  pinning buys nothing and can break outright.
+- Pinning is off below 1100px, and off whenever the full bank measures more
+  than roughly a third of the viewport — on a short screen a pinned bank
+  costs the passage more room than the reach is worth.
+- The hint line stays below the bank, outside the pinned card, and scrolls
+  away as it always has. It is read once, at the start.
+
 ## 2.7.0
 
 A completion is now reported for a **finished** board, not a perfect one, and

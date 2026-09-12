@@ -114,6 +114,148 @@
 		}
 	}
 
+	/* ---- The sticky word bank ----
+
+	   The bank pins to the top of the viewport so a word stays reachable from a
+	   gap far down the passage. game.css owns the pinning; this owns the two
+	   things a stylesheet cannot measure — how tall the theme's fixed header is,
+	   and whether this particular bank has grown tall enough that pinning it
+	   would cost more passage than the reach is worth.
+
+	   Every branch fails open. No sentinel, no IntersectionObserver, no header to
+	   measure: the bank still pins, it simply keeps its resting shadow. Nothing
+	   here can stop an exercise being played. */
+
+	// The same number as the media query in game.css, deliberately.
+	var STICKY_MIN_WIDTH = 1100;
+	var STICKY_MAX_SHARE = 0.34;
+
+	var headerMeasured = false;
+
+	/**
+	 * Write --tbtdd-header-offset from the theme's own fixed header, once.
+	 *
+	 * Divi's fixed nav shrinks as the page scrolls, so the height read at rest is
+	 * the larger of its two. That is the one worth keeping: the bank then clears
+	 * the header at every scroll position rather than tucking under it near the
+	 * top of the page. Left alone when nothing qualifies, so the token keeps the
+	 * 0px the stylesheet gives it.
+	 */
+	function measureHeaderOffset() {
+		if (headerMeasured) {
+			return;
+		}
+		headerMeasured = true;
+
+		var tallest = 0;
+
+		document.querySelectorAll('header, [role="banner"], #main-header, #top-header').forEach(function (node) {
+			// The player's own hero is a <header>, and the admin bar has its own
+			// token — neither is the theme header this is looking for.
+			if (node.id === 'wpadminbar' || node.closest('.tbtdd-exercise')) {
+				return;
+			}
+
+			var position = window.getComputedStyle(node).position;
+			if (position !== 'fixed' && position !== 'sticky') {
+				return;
+			}
+
+			// Pinned at the top of the viewport, and a plausible header height: a
+			// fixed sidebar or a full-height overlay menu is not an offset.
+			var rect = node.getBoundingClientRect();
+			if (rect.height <= 0 || rect.height > 200 || rect.top > 60) {
+				return;
+			}
+
+			tallest = Math.max(tallest, rect.height);
+		});
+
+		if (tallest > 0) {
+			document.documentElement.style.setProperty('--tbtdd-header-offset', Math.round(tallest) + 'px');
+		}
+	}
+
+	function setupStickyBank(root, bank) {
+		var sentinel = root.querySelector('[data-tbtdd-sentinel]');
+		if (!sentinel) {
+			return;
+		}
+
+		// game.css pins the bank on the standalone player and nowhere else.
+		// Asking the same question here keeps an embedded exercise out of all of
+		// this, rather than restating the rule as a second condition.
+		if (!bank.closest('.tbtdd-standalone')) {
+			return;
+		}
+
+		measureHeaderOffset();
+
+		if (typeof window.IntersectionObserver !== 'function') {
+			return;
+		}
+
+		var observer = null;
+		var resizeTimer = null;
+
+		function pixels(value) {
+			var parsed = parseFloat(value);
+			return isNaN(parsed) ? 0 : parsed;
+		}
+
+		/* The sentinel sits immediately before the bank, so the bank's own top
+		   margin is the distance between the two. The bank detaches when its top
+		   edge reaches the sticky offset, by which point the sentinel is already
+		   that margin further up; moving the observation root's top edge by the
+		   difference lands the shadow on the pixel the bank actually pins. */
+		function rootMarginTop() {
+			var style = window.getComputedStyle(bank);
+			return pixels(style.marginTop) - pixels(style.top);
+		}
+
+		/* A bank deep enough to eat a third of the screen is worse pinned than in
+		   flow. Width alone cannot answer that — a short laptop screen at 1440px
+		   fails where a tall one passes — so it is measured rather than guessed. */
+		function tooTall() {
+			return window.innerWidth < STICKY_MIN_WIDTH
+				|| bank.getBoundingClientRect().height > window.innerHeight * STICKY_MAX_SHARE;
+		}
+
+		/* Deliberately not called as words are placed. The bank does shrink past
+		   the threshold mid-exercise, but switching it to pinned at that moment
+		   would jump the passage under someone already reading it. The verdict is
+		   taken on the full bank and revisited only when the window changes. */
+		function refresh() {
+			if (observer) {
+				observer.disconnect();
+				observer = null;
+			}
+
+			if (tooTall()) {
+				bank.classList.add('is-too-tall');
+				bank.classList.remove('is-stuck');
+				return;
+			}
+
+			bank.classList.remove('is-too-tall');
+
+			observer = new window.IntersectionObserver(function (entries) {
+				entries.forEach(function (entry) {
+					bank.classList.toggle('is-stuck', !entry.isIntersecting);
+				});
+			}, { rootMargin: rootMarginTop() + 'px 0px 0px 0px', threshold: 0 });
+
+			observer.observe(sentinel);
+		}
+
+		refresh();
+
+		window.addEventListener('resize', function () {
+			window.clearTimeout(resizeTimer);
+			resizeTimer = window.setTimeout(refresh, 150);
+		});
+	}
+
 	function initExercise(root) {
 		var settings = readConfig(root);
 		if (!settings || !settings.answers) {
@@ -133,6 +275,8 @@
 		if (!bank || !slots.length) {
 			return;
 		}
+
+		setupStickyBank(root, bank);
 
 		var picked = null;
 

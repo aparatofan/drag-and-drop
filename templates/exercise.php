@@ -65,6 +65,16 @@ $tbtdd_show_hero = empty( $args['compact'] ) && ( ! empty( $args['show_title'] )
 		<p class="tbtdd-embedded-instructions"><?php echo esc_html( $instructions ); ?></p>
 	<?php endif; ?>
 
+	<?php
+	/*
+	 * Zero-height marker for the sticky bank, which the standalone player pins
+	 * to the top of the viewport. CSS does the pinning; game.js watches this to
+	 * know the moment the bank detaches, which is when it needs a raised edge.
+	 * Presentational only, and it carries nothing for a screen reader to read.
+	 */
+	?>
+	<div class="tbtdd-sentinel" data-tbtdd-sentinel aria-hidden="true"></div>
+
 	<div class="tbtdd-bank" data-tbtdd-bank aria-label="<?php esc_attr_e( 'Words to place', 'tbt-drag-drop' ); ?>">
 		<?php foreach ( $bank as $tbtdd_entry ) : ?>
 			<?php
