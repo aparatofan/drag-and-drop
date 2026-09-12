@@ -2,6 +2,59 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.6.0
+
+Finishing an exercise now reports the completion to the teacher's Class
+Progress panel, and the page beats a presence signal while a student is
+working. Reporting is an optional integration owned by TBT Notes: with Notes
+inactive nothing is sent and the exercise behaves exactly as it did in 2.5.1.
+No schema change, no new meta, no REST route of its own.
+
+### Added
+
+- **A completion is reported when Check is pressed and every gap is correct.**
+  The student turns green in the panel with the exercise's title beside them.
+  The row carries the score — always n of n today — the exercise's post ID, the
+  lesson the exercise was embedded in, and how long the attempt took, timed
+  from the first word placed rather than from page load.
+- **Using Show correct forfeits the completion for the rest of the page load.**
+  Check → Show correct → Redo → Check reaches a perfect board in three clicks,
+  so without this the panel would report a student for pressing a button three
+  times. The flag is never cleared by **Redo exercise**; a page reload gives a
+  clean slate. A student who peeks once and then redoes the exercise honestly
+  is not reported until they reload — deliberate, so that "assisted once,
+  assisted for the sitting" stays cheap to reason about.
+- **A presence heartbeat every twenty seconds while an exercise is being
+  done.** It starts on the first word placed, not on page load, so a lesson
+  page that merely contains an exercise does not mark every student in the room
+  as working the moment it paints; it stops the moment a completion is
+  reported. The timer is per page, not per exercise, so a lesson carrying three
+  exercises beats once rather than three times.
+
+### Changed
+
+- **`TBTDDGame` carries the activity endpoint alongside `strings`.** The keys
+  are added only when a user is logged in and TBT Notes is active — checked by
+  class, not by plugin file — inside the localise guard that already existed,
+  so a multi-exercise page still prints one declaration. `strings` is
+  unchanged.
+- **The exercise config carries an `activity` block.** The exercise's own post
+  ID, its title, the post being viewed when that is not the exercise itself,
+  and the server's gap count. The player refuses to report a board whose slot
+  count disagrees with that number.
+
+### Notes
+
+- Reporting never gates the learner: requests are fire-and-forget with
+  `keepalive`, failures are swallowed, and nothing is shown. Nothing sent
+  identifies anybody — the server takes the user from the session and resolves
+  their class and teacher itself.
+- A student who scores 9/10 and moves on is not reported; they read as working
+  until the heartbeat lapses. Partial scores are not recorded.
+- Everything else is untouched: the score box, **Show correct**, **Redo
+  exercise**, the bank reshuffle and the letter relabelling all behave exactly
+  as in 2.5.1.
+
 ## 2.5.1
 
 The library header takes the Admin Bar layout: a thin line joins the title, the
