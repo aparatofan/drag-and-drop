@@ -2,6 +2,50 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.7.0
+
+A completion is now reported for a **finished** board, not a perfect one, and
+the real score is sent with it. Reporting a completion also stops the presence
+heartbeat for good, so a student who presses **Redo exercise** and keeps
+playing no longer reads as working for the rest of the page's life.
+
+### Changed
+
+- **The reporting rule: Check pressed with every gap filled.** 2.6.x reported
+  only a board that was entirely correct, which is why the activity table never
+  held a single `dragdrop` row — a ten-gap exercise with distractors almost
+  never comes out perfect first time, and a signal that rare is one a teacher
+  stops reading. Green now means "handed it in"; the score says how it went.
+  Nine gaps of ten filled still reports nothing.
+- **The row carries the attempt's real score.** `score` is the number correct
+  rather than the slot count, against the same `score_max`. A board filled and
+  entirely wrong is reported as 0 — a zero is a result, not a reason to
+  suppress the row. Reading it as a score rather than as a bare "done" needs
+  TBT Notes 1.11.1.
+
+### Fixed
+
+- **The heartbeat stays stopped after a completion.** Placing a token used to
+  re-arm the shared presence timer even once the exercise had reported, and
+  nothing stopped it again, because the once-per-page-load guard blocks a
+  second completion. The student stayed pinned as working in the panel until
+  the tab closed. **Redo exercise** sits right beside **Check**, so this was
+  easy to trip. A genuinely fresh attempt is a fresh page load, as it already
+  was for the assisted flag.
+
+### Notes
+
+- **Show correct is unchanged and matters more than before.** Revealing the
+  answers still forfeits the completion for the rest of the page load, and a
+  revealed slot holds a token like any other — so that flag, not the fill test,
+  is what keeps Check → Show correct → Redo → Check from reporting a board the
+  student never solved.
+- The **Check** button is not gated or relabelled: it stays pressable at any
+  time with any number of gaps filled, and simply reports nothing until they
+  are all filled. Pressing it on an empty board does nothing, as before.
+- No PHP behaviour changed — 2.6.0's server side, the `activity` config block
+  and the `dragdrop` tool slug are all as shipped. Version bump only.
+
 ## 2.6.0
 
 Finishing an exercise now reports the completion to the teacher's Class

@@ -144,7 +144,9 @@
 		   score.
 
 		   completionSent: a once-per-page-load guard, so a student who redoes a
-		   perfect attempt does not tell the teacher they finished twice.
+		   reported attempt does not tell the teacher they finished twice. It also
+		   keeps the heartbeat stopped: placing tokens after a completion must not
+		   re-arm it.
 
 		   startedAt: set on the first token placed, so an untouched exercise is
 		   not timed. */
@@ -505,6 +507,18 @@
 			});
 		}
 
+		/* Every gap has something in it. Not "every gap is right": the rule
+		   reports a finished board and lets the score say how it went, because a
+		   ten-gap exercise with distractors almost never comes out perfect first
+		   time and a signal that rare is one nobody reads. A slot showing a
+		   revealed answer carries a token too — that is what `assisted` is for,
+		   not a reason to test the fill differently. */
+		function allSlotsFilled() {
+			return slots.every(function (slot) {
+				return !!slot.querySelector('.tbtdd-token');
+			});
+		}
+
 		function check() {
 			clearMarks();
 
@@ -539,8 +553,8 @@
 
 			announce(sprintf(t('checked'), [correct, slots.length]));
 
-			if (correct === slots.length) {
-				reportCompletion();
+			if (allSlotsFilled()) {
+				reportCompletion(correct);
 			}
 		}
 
@@ -630,13 +644,20 @@
 		/* Called from the first token placed. Starts the clock and the heartbeat;
 		   both are no-ops on every later call. */
 		function noteInteraction() {
+			// An exercise that has already reported never beats again. Redo is
+			// not a new sitting: completionSent survives it by design, and a
+			// genuinely fresh attempt is a fresh page load. Without this the
+			// student reads as working on finished work until the tab closes.
+			if (completionSent) {
+				return;
+			}
 			if (!startedAt) {
 				startedAt = Date.now();
 			}
 			startPresence();
 		}
 
-		function reportCompletion() {
+		function reportCompletion(correct) {
 			if (completionSent || assisted) {
 				return;
 			}
@@ -658,15 +679,15 @@
 			completionSent = true;
 			stopPresence();
 
-			// Score is sent even though it is always n of n here. The column is
-			// nullable and shared, and a later change to what counts as finished
-			// should not have to revisit the payload.
+			// The real score, not n of n: a filled board is what is being
+			// reported, so the score is the only thing that says how it went. A
+			// zero is a genuine result and is sent like any other.
 			postActivity('', {
 				tool: 'dragdrop',
 				object_ref: activity.objectRef,
 				object_title: activity.objectTitle,
 				post_id: activity.postId || 0,
-				score: slots.length,
+				score: correct,
 				score_max: slots.length,
 				duration_seconds: startedAt
 					? Math.max(0, Math.round((Date.now() - startedAt) / 1000))
