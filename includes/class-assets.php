@@ -59,7 +59,11 @@ final class Assets {
 		// The teaching tools are a separate surface from the playable exercise
 		// and never load admin.css / admin.js, which are styled for wp-admin.
 		wp_register_style( 'tbtdd-tools', TBTDD_URL . 'assets/css/tools.css', array( 'tbtdd-fonts', 'tbt-tokens' ), TBTDD_VERSION );
-		wp_register_script( 'tbtdd-tools', TBTDD_URL . 'assets/js/tools.js', array(), TBTDD_VERSION, true );
+		// The share panel's QR code: the same bundled library Test Maker and
+		// Translation Drill use (qrcodejs, MIT). Drawn in the browser, no
+		// request out.
+		wp_register_script( 'tbtdd-qrcode', TBTDD_URL . 'assets/js/lib/qrcode.min.js', array(), TBTDD_VERSION, true );
+		wp_register_script( 'tbtdd-tools', TBTDD_URL . 'assets/js/tools.js', array( 'tbtdd-qrcode' ), TBTDD_VERSION, true );
 	}
 
 	/**
@@ -293,9 +297,13 @@ final class Assets {
 				'savedDraft'       => __( 'Saved as a draft.', 'tbt-drag-drop' ),
 				'saveFailed'       => __( 'The exercise could not be saved.', 'tbt-drag-drop' ),
 				'draftNoLink'      => __( 'This exercise is a draft, so it has no public link yet. Publish it to get one.', 'tbt-drag-drop' ),
-				'exerciseLink'     => __( 'Exercise link', 'tbt-drag-drop' ),
-				'shortcodeLabel'   => __( 'Shortcode for a lesson page', 'tbt-drag-drop' ),
-				'copy'             => __( 'Copy', 'tbt-drag-drop' ),
+				'studentLink'      => __( 'Student link', 'tbt-drag-drop' ),
+				'linkHint'         => __( 'Anyone with this link can do the exercise. The link stays the same when you edit the exercise later.', 'tbt-drag-drop' ),
+				'lessonLabel'      => __( 'Put it in a lesson', 'tbt-drag-drop' ),
+				'shortcodeHint'    => __( 'Paste it into any page or post, such as a lesson in Divi, and the exercise appears there.', 'tbt-drag-drop' ),
+				'copyLink'         => __( 'Copy link', 'tbt-drag-drop' ),
+				'copyShortcode'    => __( 'Copy shortcode', 'tbt-drag-drop' ),
+				'qrLabel'          => __( 'QR code for the student link', 'tbt-drag-drop' ),
 				'copied'           => __( 'Copied', 'tbt-drag-drop' ),
 				'previewUnsaved'   => __( 'Save the exercise first — there is nothing to preview yet.', 'tbt-drag-drop' ),
 				'loading'          => __( 'Loading…', 'tbt-drag-drop' ),

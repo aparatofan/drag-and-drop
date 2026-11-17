@@ -2,6 +2,31 @@
 
 All notable changes to TBT Drag & Drop.
 
+## 2.10.0
+
+The Share panel now works the way Test Maker's does.
+
+### Changed
+
+- **Share is laid out as in Test Maker.** A QR code for the student link sits
+  beside two labelled fields: *Student link* (Copy link, Open) and *Put it in
+  a lesson* (the `[dd_exercise]` shortcode, Copy shortcode), each with a
+  one-line hint underneath. In the library the panel unfolds under the row in
+  a light-blue box; in the generator it fills stage 3.
+- **One builder for both places.** The generator's stage 3 and the library's
+  Share button now draw the same panel from `shareBody()` in `tools.js`. The
+  generator template only carries the link and shortcode as data attributes;
+  the old server-rendered link rows are gone.
+- **A draft** shows a note where the link and QR code would be. Its shortcode
+  stays, because `[dd_exercise]` renders drafts.
+
+### Added
+
+- `assets/js/lib/qrcode.min.js` — the same bundled qrcodejs (MIT) Test Maker
+  and Translation Drill use, registered as `tbtdd-qrcode` and loaded before
+  `tools.js`. The code is drawn in the browser; nothing is requested from
+  outside. Without it the QR code is hidden and the link still works.
+
 ## 2.9.1
 
 2.9.0's release rule was correct and lost the cascade. It never reached the

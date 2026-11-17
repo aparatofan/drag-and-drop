@@ -302,8 +302,7 @@ body {
 
 .tbtdd-field input[type="text"],
 .tbtdd-field input[type="search"],
-.tbtdd-field textarea,
-.tbtdd-copy__row input {
+.tbtdd-field textarea {
 	display: block;
 	width: 100%;
 	max-width: 100%;
@@ -320,8 +319,7 @@ body {
 }
 
 .tbtdd-field input:focus,
-.tbtdd-field textarea:focus,
-.tbtdd-copy__row input:focus {
+.tbtdd-field textarea:focus {
 	border-color: var(--tbt-blue);
 	background: var(--tbt-surface);
 	box-shadow: var(--tbt-focus-ring);
@@ -479,30 +477,102 @@ body {
 	font-size: 14px;
 }
 
-/* ---------- Share rows ---------- */
+/* ---------- Share panel (as in Test Maker: QR beside the link) ---------- */
 
-.tbtdd-linkrow {
+.tbtdd-sharebox {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 32px;
+	align-items: center;
+}
+
+/* A draft has no QR code, so the body takes the whole width. */
+.tbtdd-sharebox:not(:has(.tbtdd-qr:not([hidden]))) {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.tbtdd-qr {
 	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 216px;
+	height: 216px;
+	margin: 0;
+	border: 3px solid var(--tbt-blue);
+	border-radius: var(--tbt-radius-card);
+	background: var(--tbt-surface);
+	box-shadow: var(--tbt-shadow);
+}
+
+.tbtdd-qr[hidden] {
+	display: none;
+}
+
+.tbtdd-qr canvas,
+.tbtdd-qr img {
+	width: 176px;
+	height: 176px;
+}
+
+.tbtdd-sharebox__body {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	min-width: 0;
+}
+
+.tbtdd-sharebox__note {
+	margin: 0;
+	font-size: 15px;
+}
+
+.tbtdd-sharefield {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.tbtdd-sharefield__label {
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-content);
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.tbtdd-sharefield__row {
+	display: flex;
+	flex-wrap: wrap;
 	gap: 12px;
 	align-items: center;
-	margin-bottom: 12px;
-	padding: 10px 10px 10px 16px;
+}
+
+.tbtdd-sharefield__row input {
+	flex: 1 1 260px;
+	min-width: 0;
+	height: 44px;
+	margin: 0;
+	padding: 0 14px;
 	border: 1px solid var(--tbt-border);
 	border-radius: var(--tbt-radius-control);
-	background: var(--tbt-input);
+	background: var(--tbt-surface);
+	color: var(--tbt-ink);
+	font-family: var(--tbt-font-ui);
+	font-size: 16px;
 }
 
-.tbtdd-linkrow code {
-	overflow: hidden;
-	color: var(--tbt-blue-dark);
-	font-family: var(--tbt-font-identity);
-	font-size: 13px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+.tbtdd-sharefield__row input:focus {
+	border-color: var(--tbt-blue);
+	box-shadow: var(--tbt-focus-ring);
+	outline: none;
 }
 
-.tbtdd-linkrow .tbtdd-button {
-	margin-left: auto;
+.tbtdd-sharefield__hint {
+	color: var(--tbt-muted);
+	font-family: var(--tbt-font-ui);
+	font-size: 15px;
+	font-weight: 300;
+	line-height: 1.5;
 }
 
 /* ---------- Buttons ---------- */
@@ -593,6 +663,29 @@ body {
 	border-color: var(--tbt-blue);
 	background: var(--tbt-blue);
 	color: #FFFFFF;
+}
+
+/* The share panel's buttons, as in Test Maker: Copy is a blue-outlined pill,
+   Open a borderless link-weight button beside it. */
+.tbtdd-button--outline {
+	border: 1.5px solid var(--tbt-blue);
+	border-radius: var(--tbt-radius-button);
+	background: var(--tbt-surface);
+	color: var(--tbt-blue-dark);
+}
+
+.tbtdd-button--outline:hover {
+	border-color: var(--tbt-blue-dark);
+	background: var(--tbt-selected-bg);
+}
+
+.tbtdd-button--ghost {
+	border-color: transparent;
+	background: none;
+}
+
+.tbtdd-button--ghost:hover {
+	border-color: transparent;
 }
 
 /* ---------- Action rows ---------- */
@@ -932,6 +1025,13 @@ body {
 	grid-column: 1 / -1;
 }
 
+.tbtdd-exercise-row .tbtdd-sharebox {
+	padding: 24px;
+	border: 1px solid var(--tbt-border);
+	border-radius: var(--tbt-radius-card);
+	background: var(--tbt-selected-bg);
+}
+
 .tbtdd-badge {
 	display: inline-flex;
 	align-items: center;
@@ -966,38 +1066,6 @@ body {
 	color: var(--tbt-muted);
 	font-family: var(--tbt-font-ui);
 	font-size: 14px;
-}
-
-/* ---------- Copy rows inside the share panel ---------- */
-
-.tbtdd-share__inner {
-	padding-top: 16px;
-	border-top: 1px solid var(--tbt-border);
-}
-
-.tbtdd-copy + .tbtdd-copy {
-	margin-top: 16px;
-}
-
-.tbtdd-copy__label {
-	display: block;
-	margin-bottom: 8px;
-	color: var(--tbt-ink);
-	font-family: var(--tbt-font-ui);
-	font-size: 14px;
-	font-weight: 600;
-}
-
-.tbtdd-copy__row {
-	display: flex;
-	gap: 12px;
-	align-items: center;
-}
-
-.tbtdd-copy__row input {
-	font-family: var(--tbt-font-identity);
-	font-size: 13px;
-	line-height: 1.4;
 }
 
 /* ---------- Create dialog ---------- */
@@ -1061,6 +1129,11 @@ body {
 
 	.tbtdd-exercise-row__actions {
 		justify-content: flex-start;
+	}
+
+	.tbtdd-sharebox {
+		grid-template-columns: minmax(0, 1fr);
+		justify-items: start;
 	}
 }
 
