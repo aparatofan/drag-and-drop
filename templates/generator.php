@@ -175,25 +175,21 @@ foreach ( Exercise_Repository::resolve_positions( (string) $data['text'], (array
 			<span class="tbtdd-stage__no"><?php esc_html_e( 'Stage 3.', 'tbt-drag-drop' ); ?></span>
 			<h2 class="tbtdd-stage__name"><?php esc_html_e( 'Publish and share', 'tbt-drag-drop' ); ?></h2>
 		</div>
-		<p class="tbtdd-hint"><?php esc_html_e( 'A published exercise has its own page you can send to a student, and a shortcode for a lesson page.', 'tbt-drag-drop' ); ?></p>
+		<p class="tbtdd-hint"><?php esc_html_e( 'Send students the link or the QR code, or put the exercise in a lesson page.', 'tbt-drag-drop' ); ?></p>
 
-		<div class="tbtdd-share" data-tbtdd-share>
-			<?php if ( '' !== (string) $permalink ) : ?>
-				<div class="tbtdd-linkrow">
-					<code data-tbtdd-permalink><?php echo esc_html( $permalink ); ?></code>
-					<button type="button" class="tbtdd-button tbtdd-button--small" data-tbtdd-copy="<?php echo esc_attr( $permalink ); ?>"><?php esc_html_e( 'Copy link', 'tbt-drag-drop' ); ?></button>
-				</div>
-			<?php else : ?>
-				<p class="tbtdd-hint" data-tbtdd-draft-note><?php esc_html_e( 'This exercise is a draft, so it has no public link yet. Publish it to get one.', 'tbt-drag-drop' ); ?></p>
-			<?php endif; ?>
-
-			<?php if ( '' !== $tbtdd_shortcode ) : ?>
-				<div class="tbtdd-linkrow">
-					<code data-tbtdd-shortcode><?php echo esc_html( $tbtdd_shortcode ); ?></code>
-					<button type="button" class="tbtdd-button tbtdd-button--small" data-tbtdd-copy="<?php echo esc_attr( $tbtdd_shortcode ); ?>"><?php esc_html_e( 'Copy shortcode', 'tbt-drag-drop' ); ?></button>
-				</div>
-			<?php endif; ?>
-		</div>
+		<?php
+		/*
+		 * The panel (QR code, student link, shortcode) is drawn by tools.js
+		 * from these two values, the same way it is redrawn after every save
+		 * and in a library row's Share panel.
+		 */
+		?>
+		<div
+			class="tbtdd-share"
+			data-tbtdd-share
+			data-tbtdd-permalink="<?php echo esc_url( (string) $permalink ); ?>"
+			data-tbtdd-shortcode="<?php echo esc_attr( $tbtdd_shortcode ); ?>"
+		></div>
 
 		<div class="tbtdd-actions">
 			<button type="button" class="tbtdd-button tbtdd-button--primary" data-tbtdd-publish><?php esc_html_e( 'Publish exercise', 'tbt-drag-drop' ); ?></button>

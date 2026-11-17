@@ -180,6 +180,117 @@
 	}
 
 	/* ==================================================================
+	   The share panel
+	   ================================================================== */
+
+	/**
+	 * The share panel, used by the generator's stage 3 and by a library row's
+	 * Share button, laid out as Test Maker's: the QR code beside the student
+	 * link, and the shortcode that puts the exercise in a lesson.
+	 *
+	 * A draft has no public page, so it gets a note where the link and QR code
+	 * would be. Its shortcode still renders, so that field stays.
+	 *
+	 * @param {{status:string, permalink:string, shortcode:string}} exercise
+	 * @return {HTMLElement}
+	 */
+	function shareBody(exercise) {
+		var panel = el('div', 'tbtdd-sharebox');
+		var body = el('div', 'tbtdd-sharebox__body');
+		var link = exercise.status === 'publish' ? (exercise.permalink || '') : '';
+
+		if (link) {
+			var qr = el('figure', 'tbtdd-qr');
+			qr.setAttribute('aria-label', t('qrLabel'));
+			panel.appendChild(qr);
+
+			var open = el('a', 'tbtdd-button tbtdd-button--ghost', t('open'));
+			open.href = link;
+			open.target = '_blank';
+			open.rel = 'noopener';
+
+			body.appendChild(shareField(t('studentLink'), link, t('copyLink'), open, t('linkHint')));
+		} else {
+			body.appendChild(el('p', 'tbtdd-hint tbtdd-sharebox__note', t('draftNoLink')));
+		}
+
+		if (exercise.shortcode) {
+			body.appendChild(shareField(t('lessonLabel'), exercise.shortcode, t('copyShortcode'), null, t('shortcodeHint')));
+		}
+
+		panel.appendChild(body);
+
+		if (link) {
+			drawQr(panel.querySelector('.tbtdd-qr'), link);
+		}
+
+		return panel;
+	}
+
+	/**
+	 * One labelled, read-only field with its Copy button, an optional extra
+	 * control after it, and a hint underneath.
+	 */
+	function shareField(labelText, value, copyLabel, extra, hintText) {
+		var wrap = el('div', 'tbtdd-sharefield');
+		var id = 'tbtdd-share-' + Math.random().toString(36).slice(2, 9);
+		var label = el('label', 'tbtdd-sharefield__label', labelText);
+		var row = el('div', 'tbtdd-sharefield__row');
+		var input = document.createElement('input');
+		var button = el('button', 'tbtdd-button tbtdd-button--outline', copyLabel);
+
+		input.type = 'text';
+		input.readOnly = true;
+		input.value = value;
+		input.id = id;
+		label.setAttribute('for', id);
+
+		button.type = 'button';
+		button.setAttribute('data-tbtdd-copy', value);
+		bindCopy(button);
+
+		row.append(input, button);
+		if (extra) {
+			row.appendChild(extra);
+		}
+
+		wrap.append(label, row);
+		if (hintText) {
+			wrap.appendChild(el('span', 'tbtdd-sharefield__hint', hintText));
+		}
+		return wrap;
+	}
+
+	/**
+	 * Draw a QR code into its figure, in the token colours. Without the
+	 * library the figure is simply hidden: the link still works.
+	 *
+	 * Drawn while the panel is still detached, so the colours are read from
+	 * the document root, where the tokens are declared.
+	 */
+	function drawQr(target, url) {
+		if (!target) {
+			return;
+		}
+		if (!url || typeof window.QRCode === 'undefined') {
+			target.hidden = true;
+			return;
+		}
+
+		var css = window.getComputedStyle(document.documentElement);
+		var opts = { text: url, width: 176, height: 176, correctLevel: window.QRCode.CorrectLevel.M };
+		var dark = css.getPropertyValue('--tbt-ink').trim();
+		var light = css.getPropertyValue('--tbt-surface').trim();
+		if (dark && light) {
+			opts.colorDark = dark;
+			opts.colorLight = light;
+		}
+
+		/* eslint-disable-next-line no-new */
+		new window.QRCode(target, opts);
+	}
+
+	/* ==================================================================
 	   The gap picker
 	   ================================================================== */
 
@@ -608,6 +719,17 @@
 
 		bindCopies(root);
 
+		// The page arrives with the saved exercise's link and shortcode on the
+		// share box; the panel itself is drawn here, as it is after a save.
+		if (shareBox && exerciseId) {
+			renderShare({
+				id: exerciseId,
+				status: status,
+				permalink: shareBox.getAttribute('data-tbtdd-permalink') || '',
+				shortcode: shareBox.getAttribute('data-tbtdd-shortcode') || ''
+			});
+		}
+
 		function fieldValue(field) {
 			return field ? field.value : '';
 		}
@@ -701,7 +823,8 @@
 		}
 
 		/**
-		 * Rebuild the share rows from a saved exercise.
+		 * Rebuild the share panel from a saved exercise. Before the first
+		 * save there is nothing to share, so the box stays empty.
 		 */
 		function renderShare(exercise) {
 			if (!shareBox) {
@@ -714,26 +837,7 @@
 				return;
 			}
 
-			if (exercise.status === 'publish' && exercise.permalink) {
-				shareBox.appendChild(linkRow(exercise.permalink, t('copy')));
-			} else {
-				shareBox.appendChild(el('p', 'tbtdd-hint', t('draftNoLink')));
-			}
-
-			shareBox.appendChild(linkRow(exercise.shortcode, t('copy')));
-		}
-
-		function linkRow(value, label) {
-			var row = el('div', 'tbtdd-linkrow');
-			var code = el('code', null, value);
-			var button = el('button', 'tbtdd-button tbtdd-button--small', label);
-
-			button.type = 'button';
-			button.setAttribute('data-tbtdd-copy', value);
-			bindCopy(button);
-
-			row.append(code, button);
-			return row;
+			shareBox.appendChild(shareBody(exercise));
 		}
 
 		function setBusy(busy) {
@@ -1257,42 +1361,6 @@
 			return count === 1 ? t('oneGapInExercise') : sprintf(t('gapsInExercise'), [count]);
 		}
 
-		function shareRow(exercise) {
-			var panel = el('div', 'tbtdd-share__inner');
-
-			if (exercise.status !== 'publish' || !exercise.permalink) {
-				panel.appendChild(el('p', 'tbtdd-hint', t('draftNoLink')));
-			} else {
-				panel.appendChild(copyField(t('exerciseLink'), exercise.permalink));
-			}
-
-			panel.appendChild(copyField(t('shortcodeLabel'), exercise.shortcode));
-			return panel;
-		}
-
-		function copyField(labelText, value) {
-			var wrap = el('div', 'tbtdd-copy');
-			var id = 'tbtdd-copy-' + Math.random().toString(36).slice(2, 9);
-			var label = el('label', 'tbtdd-copy__label', labelText);
-			var row = el('div', 'tbtdd-copy__row');
-			var input = document.createElement('input');
-			var button = el('button', 'tbtdd-button tbtdd-button--small', t('copy'));
-
-			input.type = 'text';
-			input.readOnly = true;
-			input.value = value;
-			input.id = id;
-			label.setAttribute('for', id);
-
-			button.type = 'button';
-			button.setAttribute('data-tbtdd-copy', value);
-			bindCopy(button);
-
-			row.append(input, button);
-			wrap.append(label, row);
-			return wrap;
-		}
-
 		function row(exercise) {
 			// The rim says the same thing as the badge, so a scanned list reads
 			// without stopping on each row.
@@ -1359,7 +1427,7 @@
 				var opening = share.hidden;
 				if (opening) {
 					// Built lazily on first expand.
-					share.replaceChildren(shareRow(exercise));
+					share.replaceChildren(shareBody(exercise));
 				}
 				share.hidden = !opening;
 				shareButton.setAttribute('aria-expanded', opening ? 'true' : 'false');
